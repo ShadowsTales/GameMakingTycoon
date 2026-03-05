@@ -1,0 +1,18 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:VisualElement name="BaukastenRoot" style="flex-grow: 1; width: 100%; height: 100%; overflow: hidden; background-color: #121212;">
+        
+        <ui:VisualElement name="DevelopmentBoard" style="position: absolute; width: 100%; height: 100%;" />
+
+        <ui:VisualElement name="HardwareStatus" style="position: absolute; bottom: 20; right: 20; width: 280; background-color: rgba(0, 0, 0, 0.85); border-radius: 12; padding: 15; border-width: 1; border-color: #333;">
+            <ui:Label text="HARDWARE" style="-unity-font-style: bold; color: #aaa; font-size: 10;" />
+            <ui:ProgressBar name="CpuBar" title="CPU" style="margin-top: 5;" />
+            <ui:ProgressBar name="RamBar" title="RAM" style="margin-top: 5;" />
+            <ui:Button name="BtnStartFinalDev" text="RELEASE STARTEN" style="margin-top: 15; height: 40; background-color: #27ae60; color: white; -unity-font-style: bold; border-radius: 5;" />
+        </ui:VisualElement>
+
+        <ui:VisualElement name="TopBar" style="position: absolute; top: 20; left: 20; right: 20; height: 50; flex-direction: row; background-color: rgba(30,30,30,0.8); border-radius: 10; padding: 5;">
+             <ui:TextField name="SearchField" placeholder-text="Feature suchen..." style="flex-grow: 1; margin-right: 10;" />
+        </ui:VisualElement>
+
+    </ui:VisualElement>
+</ui:UXML>

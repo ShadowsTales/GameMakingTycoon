@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a54ddc941db6f274fa8997f22da28162, type: 3}
+  m_Name: targetGroupDatabase
+  m_EditorClassIdentifier: Assembly-CSharp::targetGroupDatabase
+  targetGroups:
+  - {fileID: 11400000, guid: 13a765297f0a80d42bf764e7b4e916f1, type: 2}
+  - {fileID: 11400000, guid: 6573699e1bc76114eac6573ba2eb64ad, type: 2}
+  - {fileID: 11400000, guid: 4f7d2dcdaf8bf6644ba475f0e99d886c, type: 2}

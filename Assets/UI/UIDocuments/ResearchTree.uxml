@@ -1,0 +1,22 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/StyleSheets/ResearchTree.uss?fileID=7433441132597879392&amp;guid=00b5b398ccc550042b3f55fdc0b51f5f&amp;type=3#ResearchTree"/>
+    <ui:VisualElement name="ResearchRoot" style="flex-grow: 1; width: 100%; height: 100%; flex-direction: column; background-color: rgb(7, 8, 13); position: relative;">
+        <ui:VisualElement name="ScrollbarBar" class="scrollbar-bar">
+            <ui:Label name="YearStart" text="1972" class="scrollbar-year"/>
+            <ui:VisualElement name="ScrollbarTrack" class="scrollbar-track">
+                <ui:VisualElement name="ScrollbarThumb" class="scrollbar-thumb"/>
+            </ui:VisualElement>
+            <ui:Label name="YearEnd" text="2025" class="scrollbar-year"/>
+            <ui:Label text="TIMELINE" class="scrollbar-hint"/>
+        </ui:VisualElement>
+        <ui:VisualElement name="ResearchViewport" style="flex-grow: 1; overflow: hidden; position: relative;">
+            <ui:VisualElement name="GridContent" style="position: relative; left: 0; top: 0;">
+                <ui:VisualElement name="Lane_Gameplay" picking-mode="Ignore" class="lane lane-gameplay"/>
+                <ui:VisualElement name="Lane_Graphic" picking-mode="Ignore" class="lane lane-graphic"/>
+                <ui:VisualElement name="Lane_Sound" picking-mode="Ignore" class="lane lane-sound"/>
+                <ui:VisualElement name="Lane_Tech" picking-mode="Ignore" class="lane lane-tech"/>
+                <ui:VisualElement name="YearMarkers" picking-mode="Ignore" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f766d89922b8c904382c125f5136b25b, type: 3}
+  m_Name: Mehrfarb-Modus
+  m_EditorClassIdentifier: Assembly-CSharp::FeatureSO
+  featureName: Mehrfarb-Modus
+  category: 1
+  description: 
+  cpuUsage: 0
+  ramUsage: 0
+  researchCostPoints: 0
+  isResearched: 0
+  releaseYear: 1976
+  canExpand: 1
+  prerequisites:
+  - {fileID: 11400000, guid: 0cf3f5c235fc786488264d084a00a5c9, type: 2}
+  yearAvailable: 0

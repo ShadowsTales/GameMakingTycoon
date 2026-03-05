@@ -1,0 +1,30 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="GameCreatorRoot" class="page-container">
+        <ui:Label text="Neues Spiel entwickeln" class="page-title"/>
+        <ui:VisualElement name="ColumnsContainer" style="flex-direction: row; flex-grow: 1;">
+            <ui:VisualElement class="creator-column" style="flex-grow: 1; padding: 20px;">
+                <ui:Label text="Basis-Daten" class="section-header"/>
+                <ui:TextField label="Name des Spiels" name="InputGameName"/>
+                <ui:DropdownField label="Haupt-Genre" name="DropdownGenre"/>
+                <ui:DropdownField label="Sub-Genre" name="DropdownSecondGenre"/>
+                <ui:DropdownField label="Haupt-Thema" name="DropdownTopic"/>
+                <ui:DropdownField label="Sub-Thema" name="DropdownSecondTopic"/>
+                <ui:DropdownField label="Zielgruppe" name="DropdownAudience"/>
+            </ui:VisualElement>
+            <ui:VisualElement class="creator-column" style="flex-grow: 1; padding: 20px; border-left-width: 1px; border-left-color: rgb(51, 65, 85);">
+                <ui:Label text="Technologie &amp; Features" class="section-header"/>
+                <ui:DropdownField label="Engine" name="DropdownEngine"/>
+                <ui:Label text="Features auswählen" style="margin-top: 10px; -unity-font-style: bold;"/>
+                <ui:ScrollView name="FeatureList" style="height: 200px; background-color: rgb(15, 23, 42); margin-top: 5px;">
+                    <ui:Toggle label="KI-System" class="feature-toggle"/>
+                    <ui:Toggle label="Physik-Engine" class="feature-toggle"/>
+                    <ui:Toggle label="Multiplayer" class="feature-toggle"/>
+                </ui:ScrollView>
+                <ui:VisualElement name="CostPreview" style="margin-top: 20px; padding: 10px; background-color: rgb(30, 41, 59);">
+                    <ui:Label text="Geschätzte Kosten: 0 €" name="LabelTotalCost"/>
+                </ui:VisualElement>
+                <ui:Button text="Entwicklung starten!" name="BtnStartDev" class="action-button"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

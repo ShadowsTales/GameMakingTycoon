@@ -1,0 +1,49 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/StyleSheets/Layout.uss?fileID=7433441132597879392&amp;guid=2d37ec7d7966a6b46998e2ccf52e470d&amp;type=3#Layout"/>
+    <ui:VisualElement name="Root">
+        <ui:VisualElement name="Sidebar">
+            <ui:VisualElement name="LogoContainer">
+                <ui:Image name="CompanyLogo"/>
+                <ui:Label text="GAME DEV CORP" name="CompanyName"/>
+            </ui:VisualElement>
+            <ui:Button text="Dashboard" name="BtnDashboard" class="menu-button"/>
+            <ui:Button text="New Game" name="BtnNewGame" class="menu-button"/>
+            <ui:Button text="Finanzen" name="BtnFinanzen" class="menu-button"/>
+            <ui:Button text="Research" name="BtnResearch" class="menu-button"/>
+            <ui:Button text="Personal" name="BtnPersonal" class="menu-button"/>
+        </ui:VisualElement>
+        <ui:VisualElement name="MainContainer" style="flex-grow: 1;">
+            <ui:VisualElement name="TopBar" style="justify-content: space-between; flex-direction: row;">
+                <ui:VisualElement name="StatsContainer" style="flex-direction: row; align-items: center;">
+                    <ui:VisualElement class="stat-group" style="flex-direction: row;">
+                        <ui:Label text="Geld:" class="stat-label"/>
+                        <ui:Label text="50.000 €" name="MoneyValue" class="stat-value"/>
+                        <ui:Label text="▲" name="FlowValue" class="flow-icon"/>
+                    </ui:VisualElement>
+                    <ui:VisualElement name="ResearchMini" class="stat-group" style="margin-left: 20px; flex-direction: row;">
+                        <ui:Label text="Forschung:" class="stat-label"/>
+                        <ui:Label text="KI Stufe 1" class="stat-value"/>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement name="TimeContainer" style="flex-direction: row; align-items: center;">
+                    <ui:Label text="J1, W1" name="DateValue" class="stat-value" style="margin-right: 15px;"/>
+                    <ui:VisualElement name="TimeButtons" style="flex-direction: row;">
+                        <ui:Button text="||" name="BtnPause" class="time-button"/>
+                        <ui:Button text="&gt;" name="BtnNormal" class="time-button"/>
+                        <ui:Button text="&gt;&gt;" name="BtnFast" class="time-button"/>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement name="ContentArea" __unity-builder-selected-element="selected" style="flex-grow: 1; height: 100%;">
+                <ui:ScrollView name="ActivePage" style="flex-grow: 1; flex-basis: auto; height: 100%;"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="PopupOverlay" class="hidden">
+            <ui:VisualElement name="PopupWindow">
+                <ui:Label text="Details" name="PopupTitle"/>
+                <ui:Label text="Hier stehen die Detail-Informationen..."/>
+                <ui:Button text="Schließen" name="BtnClosePopup"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
