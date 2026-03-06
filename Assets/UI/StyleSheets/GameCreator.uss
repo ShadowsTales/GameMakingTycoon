@@ -1,0 +1,377 @@
+/* ============================================================
+   GameCreator.uss
+   Styles for the 4-step New Game creation form.
+   ============================================================ */
+
+.gc-root {
+    flex-direction: column;
+    flex-grow: 1;
+    background-color: rgb(10, 14, 22);
+    padding: 0;
+}
+
+/* ── Header ─────────────────────────────────────────────────── */
+.gc-header {
+    padding: 24px 32px 16px;
+    border-bottom-width: 1px;
+    border-color: rgb(51, 65, 85);
+    background-color: rgb(15, 23, 42);
+}
+
+.gc-header-title {
+    font-size: 18px;
+    color: rgb(248, 250, 252);
+    -unity-font-style: bold;
+    letter-spacing: 3px;
+}
+
+.gc-header-sub {
+    font-size: 11px;
+    color: rgb(71, 85, 105);
+    margin-top: 4px;
+}
+
+/* ── Step Indicator ─────────────────────────────────────────── */
+.gc-steps {
+    flex-direction: row;
+    align-items: center;
+    padding: 16px 32px;
+    background-color: rgb(12, 18, 30);
+    border-bottom-width: 1px;
+    border-color: rgb(51, 65, 85);
+}
+
+.gc-step {
+    flex-direction: row;
+    align-items: center;
+    opacity: 0.35;
+}
+
+.gc-step.step-active { opacity: 1; }
+.gc-step.step-done   { opacity: 0.7; }
+
+.step-number {
+    width: 26px;
+    height: 26px;
+    border-radius: 13px;
+    background-color: rgb(51, 65, 85);
+    color: rgb(148, 163, 184);
+    font-size: 11px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+}
+
+.gc-step.step-active .step-number {
+    background-color: rgb(56, 189, 248);
+    color: rgb(10, 14, 22);
+}
+
+.gc-step.step-done .step-number {
+    background-color: rgb(34, 197, 94);
+    color: rgb(10, 14, 22);
+}
+
+.step-label {
+    font-size: 10px;
+    color: rgb(100, 116, 139);
+    margin-left: 8px;
+    letter-spacing: 1px;
+}
+
+.gc-step.step-active .step-label { color: rgb(56, 189, 248); }
+.gc-step.step-done   .step-label { color: rgb(34, 197, 94); }
+
+.gc-step-line {
+    flex-grow: 1;
+    height: 1px;
+    background-color: rgb(51, 65, 85);
+    margin: 0 16px;
+    max-width: 80px;
+}
+
+/* ── Panel container ─────────────────────────────────────────── */
+.gc-panels {
+    flex-grow: 1;
+    overflow: hidden;
+}
+
+.gc-panel {
+    flex-grow: 1;
+    flex-direction: column;
+    padding: 28px 32px;
+    overflow: hidden;
+}
+
+/* ── Form elements ───────────────────────────────────────────── */
+.panel-section-label {
+    font-size: 9px;
+    letter-spacing: 2.5px;
+    color: rgb(56, 189, 248);
+    -unity-font-style: bold;
+    margin-bottom: 14px;
+}
+
+.form-hint {
+    font-size: 10px;
+    color: rgb(71, 85, 105);
+    margin-bottom: 10px;
+    font-style: italic;
+}
+
+.gc-form-row {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.form-label {
+    width: 130px;
+    font-size: 12px;
+    color: rgb(148, 163, 184);
+    flex-shrink: 0;
+}
+
+.form-input {
+    flex-grow: 1;
+}
+.form-input .unity-text-field__input {
+    background-color: rgb(22, 32, 48);
+    border-color: rgb(51, 65, 85);
+    border-radius: 6px;
+    color: rgb(248, 250, 252);
+    font-size: 13px;
+    padding: 7px 10px;
+}
+.form-input .unity-text-field__input:focus {
+    border-color: rgb(56, 189, 248);
+}
+
+.form-dropdown {
+    flex-grow: 1;
+}
+.form-dropdown .unity-base-popup-field__text {
+    background-color: rgb(22, 32, 48);
+    border-color: rgb(51, 65, 85);
+    border-radius: 6px;
+    color: rgb(248, 250, 252);
+    font-size: 12px;
+    padding: 6px 10px;
+}
+.form-dropdown .unity-base-field__label { display: none; }
+
+/* ── Synergy box ─────────────────────────────────────────────── */
+.synergy-box {
+    background-color: rgb(22, 32, 48);
+    border-width: 1px;
+    border-color: rgb(51, 65, 85);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-top: 10px;
+    flex-direction: row;
+    align-items: center;
+}
+.synergy-title {
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: rgb(71, 85, 105);
+    -unity-font-style: bold;
+    margin-right: 16px;
+}
+.synergy-value {
+    font-size: 13px;
+    color: rgb(34, 197, 94);
+    -unity-font-style: bold;
+}
+
+/* ── Focus sliders ───────────────────────────────────────────── */
+.focus-slider { flex-grow: 1; margin: 0 10px; }
+.slider-val {
+    width: 28px;
+    font-size: 11px;
+    color: rgb(56, 189, 248);
+    -unity-font-style: bold;
+    -unity-text-align: middle-right;
+}
+.focus-total-row {
+    flex-direction: row;
+    align-items: center;
+    margin-top: 4px;
+    padding-top: 8px;
+    border-top-width: 1px;
+    border-color: rgb(51, 65, 85);
+}
+.focus-total {
+    font-size: 13px;
+    -unity-font-style: bold;
+    color: rgb(34, 197, 94);
+}
+.focus-total.over-budget { color: rgb(239, 68, 68); }
+
+.focus-gameplay { color: rgb(245, 158, 11); }
+.focus-graphic  { color: rgb(239, 68, 68);  }
+.focus-sound    { color: rgb(34, 197, 94);  }
+
+/* ── Engine stats ─────────────────────────────────────────────── */
+.engine-stats-box {
+    background-color: rgb(18, 27, 42);
+    border-width: 1px;
+    border-color: rgb(51, 65, 85);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-top: 8px;
+}
+.engine-stat-row {
+    flex-direction: row;
+    justify-content: space-between;
+    margin-bottom: 5px;
+}
+.engine-stat-label {
+    font-size: 11px;
+    color: rgb(100, 116, 139);
+}
+.engine-stat-value {
+    font-size: 11px;
+    color: rgb(56, 189, 248);
+    -unity-font-style: bold;
+}
+
+/* ── License list ─────────────────────────────────────────────── */
+.license-list {
+    height: 100px;
+    background-color: rgb(12, 18, 30);
+    border-width: 1px;
+    border-color: rgb(51, 65, 85);
+    border-radius: 6px;
+    margin-top: 4px;
+}
+.license-toggle {
+    padding: 6px 10px;
+    font-size: 11px;
+    color: rgb(148, 163, 184);
+    border-bottom-width: 1px;
+    border-color: rgb(30, 41, 59);
+}
+
+/* ── Console grid ─────────────────────────────────────────────── */
+.console-grid {
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin-top: 6px;
+}
+.console-toggle {
+    width: 110px;
+    margin: 4px;
+    padding: 8px;
+    background-color: rgb(22, 32, 48);
+    border-width: 1px;
+    border-color: rgb(51, 65, 85);
+    border-radius: 6px;
+    font-size: 10px;
+    color: rgb(100, 116, 139);
+    -unity-text-align: middle-center;
+}
+.console-toggle.selected {
+    border-color: rgb(56, 189, 248);
+    color: rgb(56, 189, 248);
+    background-color: rgba(56, 189, 248, 0.08);
+}
+
+/* ── Summary grid ─────────────────────────────────────────────── */
+.summary-grid {
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+.summary-block {
+    width: 48%;
+    background-color: rgb(18, 27, 42);
+    border-width: 1px;
+    border-color: rgb(51, 65, 85);
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin: 4px;
+}
+.summary-block-title {
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: rgb(56, 189, 248);
+    -unity-font-style: bold;
+    margin-bottom: 8px;
+}
+.summary-line {
+    font-size: 11px;
+    color: rgb(148, 163, 184);
+    margin-bottom: 3px;
+}
+
+/* ── Score preview ────────────────────────────────────────────── */
+.score-preview {
+    background-color: rgb(12, 18, 30);
+    border-width: 1px;
+    border-color: rgb(51, 65, 85);
+    border-radius: 8px;
+    padding: 16px;
+    align-items: center;
+}
+.score-preview-title {
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: rgb(71, 85, 105);
+    margin-bottom: 8px;
+}
+.score-preview-value {
+    font-size: 36px;
+    color: rgb(34, 197, 94);
+    -unity-font-style: bold;
+}
+.score-preview-note {
+    font-size: 10px;
+    color: rgb(71, 85, 105);
+    margin-top: 4px;
+    font-style: italic;
+}
+
+/* ── Navigation ───────────────────────────────────────────────── */
+.gc-nav {
+    flex-direction: row;
+    align-items: center;
+    padding: 14px 32px;
+    border-top-width: 1px;
+    border-color: rgb(51, 65, 85);
+    background-color: rgb(15, 23, 42);
+    flex-shrink: 0;
+}
+
+.gc-nav-btn {
+    border-radius: 7px;
+    border-width: 1px;
+    font-size: 12px;
+    -unity-font-style: bold;
+    padding: 10px 24px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition-duration: 0.15s;
+}
+
+.btn-back {
+    background-color: transparent;
+    border-color: rgb(51, 65, 85);
+    color: rgb(100, 116, 139);
+}
+.btn-back:hover { border-color: rgb(148, 163, 184); color: rgb(148, 163, 184); }
+
+.btn-next {
+    background-color: rgba(56, 189, 248, 0.1);
+    border-color: rgb(56, 189, 248);
+    color: rgb(56, 189, 248);
+}
+.btn-next:hover { background-color: rgba(56, 189, 248, 0.25); }
+
+.btn-start {
+    background-color: rgba(34, 197, 94, 0.1);
+    border-color: rgb(34, 197, 94);
+    color: rgb(34, 197, 94);
+}
+.btn-start:hover { background-color: rgba(34, 197, 94, 0.25); }
+
+.hidden { display: none; }

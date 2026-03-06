@@ -352,6 +352,7 @@ GameObject:
   - component: {fileID: 1698328302}
   - component: {fileID: 1698328303}
   - component: {fileID: 1698328304}
+  - component: {fileID: 1698328305}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -439,6 +440,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ResearchTreeController
   featureDB: {fileID: 11400000, guid: 7d1ad5085b1ca4f4a8f55d2be9ab7c3d, type: 2}
+--- !u!114 &1698328305
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1698328298}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 146a507704c88d142baa7b9c8b1ccdac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NodeGraphController
+  featureDB: {fileID: 11400000, guid: 7d1ad5085b1ca4f4a8f55d2be9ab7c3d, type: 2}
+  maxCpu: 100
+  maxRam: 100
 --- !u!1 &1823454450
 GameObject:
   m_ObjectHideFlags: 0
@@ -510,11 +526,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: '::'
   financeTemplate: {fileID: 9197481963319205126, guid: b831c547a82204444ab7c5a09c69aba1, type: 3}
-  newGameTemplate: {fileID: 9197481963319205126, guid: 6f33fb6e528bec847a898491dea39162, type: 3}
+  gameCreatorTemplate: {fileID: 9197481963319205126, guid: 2fa3060df097c5d4e95e99d152088cf7, type: 3}
   researchTemplate: {fileID: 9197481963319205126, guid: 5fe921e92683c23499fef5adec10594d, type: 3}
-  baukastenTemplate: {fileID: 9197481963319205126, guid: 4eaf3d6cf7135274496caac6260e2670, type: 3}
+  nodeGraphTemplate: {fileID: 9197481963319205126, guid: ee29a38a620d59e4db5ec81deb8d0bd0, type: 3}
   researchController: {fileID: 1698328304}
   creatorController: {fileID: 1823454455}
+  nodeGraphController: {fileID: 1698328305}
 --- !u!114 &1823454454
 MonoBehaviour:
   m_ObjectHideFlags: 0
