@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f766d89922b8c904382c125f5136b25b, type: 3}
+  m_Name: Echtzeit-Kampf
+  m_EditorClassIdentifier: Assembly-CSharp::FeatureSO
+  featureName: Echtzeit-Kampf
+  category: 0
+  description: "K\xE4mpfe laufen kontinuierlich ab. Reaktionszeit des Spielers entscheidet."
+  cpuUsage: 25
+  ramUsage: 4
+  researchCostPoints: 20
+  isResearched: 1
+  releaseYear: 1975
+  canExpand: 1
+  prerequisites: []
+  synergyWith:
+  - {fileID: 11400000, guid: 4da3133bc79e3e744a2b838fe30b7603, type: 2}
+  - {fileID: 11400000, guid: 37f76b19359da3a47976c0755de5795d, type: 2}
+  conflictsWith:
+  - {fileID: 11400000, guid: eeb29a39091af6349b2df522b1384cb9, type: 2}
+  tierOverride: 1
+  yearAvailable: 0

@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f766d89922b8c904382c125f5136b25b, type: 3}
+  m_Name: Ereignis-Sounds
+  m_EditorClassIdentifier: Assembly-CSharp::FeatureSO
+  featureName: Ereignis-Sounds
+  category: 2
+  description: "Verschiedene T\xF6ne f\xFCr verschiedene Spielereignisse: Sprung,
+    Tod, Level-Up."
+  cpuUsage: 6
+  ramUsage: 2
+  researchCostPoints: 8
+  isResearched: 1
+  releaseYear: 1974
+  canExpand: 0
+  prerequisites:
+  - {fileID: 11400000, guid: a279bdfd3e82b454c86e7594ecc4f013, type: 2}
+  synergyWith:
+  - {fileID: 11400000, guid: 5c09aaa7c5597ec489b068381afe8360, type: 2}
+  conflictsWith: []
+  tierOverride: 3
+  yearAvailable: 0

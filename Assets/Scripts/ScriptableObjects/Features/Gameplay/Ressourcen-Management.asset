@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f766d89922b8c904382c125f5136b25b, type: 3}
+  m_Name: Ressourcen-Management
+  m_EditorClassIdentifier: Assembly-CSharp::FeatureSO
+  featureName: Ressourcen-Management
+  category: 0
+  description: "Spieler verwaltet begrenzte Ressourcen wie Energie, Punkte oder Vorr\xE4te."
+  cpuUsage: 16
+  ramUsage: 5
+  researchCostPoints: 20
+  isResearched: 1
+  releaseYear: 1977
+  canExpand: 1
+  prerequisites: []
+  synergyWith:
+  - {fileID: 11400000, guid: eeb29a39091af6349b2df522b1384cb9, type: 2}
+  - {fileID: 11400000, guid: 8cb8ffcd6cbc76845b24e0e65e9e3c9b, type: 2}
+  conflictsWith: []
+  tierOverride: 1
+  yearAvailable: 0

@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f766d89922b8c904382c125f5136b25b, type: 3}
+  m_Name: Explosions-Effekte
+  m_EditorClassIdentifier: Assembly-CSharp::FeatureSO
+  featureName: Explosions-Effekte
+  category: 1
+  description: Visuelle Effekte bei Treffern und Explosionen. Gibt Spielaktionen
+    Gewicht.
+  cpuUsage: 8
+  ramUsage: 4
+  researchCostPoints: 10
+  isResearched: 1
+  releaseYear: 1976
+  canExpand: 0
+  prerequisites: []
+  synergyWith:
+  - {fileID: 11400000, guid: 6fc048eca98c9ef4785d7561a277885b, type: 2}
+  - {fileID: 11400000, guid: d22b34f4bc6f98040bab56269d8f80ec, type: 2}
+  conflictsWith: []
+  tierOverride: 3
+  yearAvailable: 0

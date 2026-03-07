@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f766d89922b8c904382c125f5136b25b, type: 3}
+  m_Name: Spielfigur-Sprite
+  m_EditorClassIdentifier: Assembly-CSharp::FeatureSO
+  featureName: Spielfigur-Sprite
+  category: 1
+  description: "Eine einzelne Grafikfigur die den Spieler repr\xE4sentiert. Kernvisualisierung."
+  cpuUsage: 8
+  ramUsage: 4
+  researchCostPoints: 0
+  isResearched: 1
+  releaseYear: 1972
+  canExpand: 1
+  prerequisites: []
+  synergyWith:
+  - {fileID: 11400000, guid: 80cc9d2af0476bf4ea969680d55965e7, type: 2}
+  - {fileID: 11400000, guid: d1d82d819a1901c47bc8d3a189c73fa9, type: 2}
+  conflictsWith: []
+  tierOverride: 1
+  yearAvailable: 0

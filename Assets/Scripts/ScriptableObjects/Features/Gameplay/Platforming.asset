@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f766d89922b8c904382c125f5136b25b, type: 3}
+  m_Name: Platforming
+  m_EditorClassIdentifier: Assembly-CSharp::FeatureSO
+  featureName: Platforming
+  category: 0
+  description: "Springen zwischen Plattformen. Schwerkraft und Tr\xE4gheit beeinflussen
+    Bewegung."
+  cpuUsage: 24
+  ramUsage: 4
+  researchCostPoints: 25
+  isResearched: 1
+  releaseYear: 1977
+  canExpand: 1
+  prerequisites: []
+  synergyWith:
+  - {fileID: 11400000, guid: 4da3133bc79e3e744a2b838fe30b7603, type: 2}
+  - {fileID: 11400000, guid: 86e703a653fccc14a88149b7b6700318, type: 2}
+  - {fileID: 11400000, guid: cd38374c7e6d51445b58324c6bc4ab87, type: 2}
+  conflictsWith: []
+  tierOverride: 1
+  yearAvailable: 0

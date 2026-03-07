@@ -1,12 +1,13 @@
 // ============================================================
-//  NodeGraph.cs
-//  The core data model for the Game Creator node graph.
+//  NodeGraph.cs  — NODE-TYCOON
 //
-//  Responsibilities:
-//   • Hold all nodes and connections
-//   • Validate wire attempts (PortCompatibility + prerequisite check)
-//   • Evaluate the graph → produce GameBuildResult
-//   • Detect cycles (prevent infinite loops)
+//  Score-Formel (Design-Doc):
+//    Gesamt-Score = (S_Fit + S_Quality + S_Tech) × S_Staff
+//
+//  S_Fit     — Genre-Passung: Synergien Anker↔Upgrade, Konflikte
+//  S_Quality — Feature-Tiefe: Anzahl + Level der Upgrades pro Anker
+//  S_Tech    — Lauffähigkeit: CPU-Budget-Einhaltung, Optimizer-Boni
+//  S_Staff   — Mitarbeiter-Einfluss (extern injiziert, Standard 1.0)
 // ============================================================
 using System;
 using System.Collections.Generic;
@@ -16,18 +17,15 @@ using UnityEngine;
 [Serializable]
 public class NodeGraph
 {
-    // ── Storage ──────────────────────────────────────────────────────
     private readonly Dictionary<string, GameNode>       _nodes       = new();
     private readonly Dictionary<string, NodeConnection> _connections = new();
 
-    // ── Events ───────────────────────────────────────────────────────
     public event Action<GameNode>       OnNodeAdded;
     public event Action<GameNode>       OnNodeRemoved;
     public event Action<NodeConnection> OnConnectionAdded;
     public event Action<NodeConnection> OnConnectionRemoved;
-    public event Action<string>         OnValidationError;  // message for UI toast
+    public event Action<string>         OnValidationError;
 
-    // ── Read-only views ──────────────────────────────────────────────
     public IEnumerable<GameNode>       AllNodes       => _nodes.Values;
     public IEnumerable<NodeConnection> AllConnections => _connections.Values;
 
@@ -42,25 +40,19 @@ public class NodeGraph
         OnNodeAdded?.Invoke(node);
     }
 
-    /// <summary>
-    /// Removes a node AND all its connections.
-    /// Pillar start nodes cannot be removed.
-    /// </summary>
     public bool RemoveNode(string nodeId)
     {
         if (!_nodes.TryGetValue(nodeId, out var node)) return false;
-        if (node.Kind == NodeKind.PillarStart)
+        if (node.Kind == NodeKind.Core)
         {
-            OnValidationError?.Invoke("Pillar Start nodes cannot be deleted.");
+            OnValidationError?.Invoke("Der Core-Node kann nicht gelöscht werden.");
             return false;
         }
 
-        // Remove all connections that touch this node
         var toRemove = _connections.Values
             .Where(c => c.FromNodeId == nodeId || c.ToNodeId == nodeId)
             .Select(c => c.ConnectionId)
             .ToList();
-
         foreach (var cid in toRemove) RemoveConnection(cid);
 
         _nodes.Remove(nodeId);
@@ -72,250 +64,386 @@ public class NodeGraph
     //  CONNECTION MANAGEMENT
     // ════════════════════════════════════════════════════════════════
 
-    /// <summary>
-    /// Attempts to create a connection.  Returns null and fires
-    /// OnValidationError if validation fails.
-    /// </summary>
     public NodeConnection TryConnect(NodePort fromPort, NodePort toPort)
     {
-        // 1. Direction check
+        // 1. Kein Self-Loop
+        if (fromPort.OwnerNode.NodeId == toPort.OwnerNode.NodeId)
+        { OnValidationError?.Invoke("Self-Verbindung nicht erlaubt."); return null; }
+
+        // 2. Output → Input
         if (!fromPort.IsOutput || toPort.IsOutput)
-        {
-            OnValidationError?.Invoke("Connect from an Output port to an Input port.");
-            return null;
-        }
+        { OnValidationError?.Invoke("Verbindung muss von Output → Input gehen."); return null; }
 
-        // 2. Self-loop check
-        if (fromPort.OwnerNode == toPort.OwnerNode)
-        {
-            OnValidationError?.Invoke("A node cannot connect to itself.");
-            return null;
-        }
-
-        // 3. Port type compatibility
+        // 3. Port-Kompatibilität
         if (!PortCompatibility.IsCompatible(fromPort.Type, toPort.Type))
-        {
-            OnValidationError?.Invoke(
-                PortCompatibility.GetIncompatibilityReason(fromPort.Type, toPort.Type));
-            return null;
-        }
+        { OnValidationError?.Invoke($"Inkompatible Ports: {fromPort.Type} → {toPort.Type}"); return null; }
 
-        // 4. Duplicate connection check
-        if (_connections.Values.Any(c =>
-                c.FromPortId == fromPort.PortId && c.ToPortId == toPort.PortId))
-        {
-            OnValidationError?.Invoke("These ports are already connected.");
-            return null;
-        }
+        // 4. Input-Port bereits belegt?
+        bool inputOccupied = _connections.Values.Any(c => c.ToPortId == toPort.PortId);
+        if (inputOccupied)
+        { OnValidationError?.Invoke("Input-Port bereits verbunden."); return null; }
 
-        // 5. Input-port already occupied (inputs accept only 1 connection)
-        if (_connections.Values.Any(c => c.ToPortId == toPort.PortId))
-        {
-            OnValidationError?.Invoke($"Input port '{toPort.Label}' is already in use.");
-            return null;
-        }
+        // 5. Zyklus-Check
+        if (WouldCreateCycle(fromPort.OwnerNode.NodeId, toPort.OwnerNode.NodeId))
+        { OnValidationError?.Invoke("Zyklische Verbindung nicht erlaubt."); return null; }
 
-        // 6. Cycle detection (prevent A→B→C→A)
-        if (WouldCreateCycle(fromPort.OwnerNode, toPort.OwnerNode))
+        // 6. Voraussetzungen
+        if (_nodes.TryGetValue(toPort.OwnerNode.NodeId, out var toNode))
         {
-            OnValidationError?.Invoke("This connection would create a cycle.");
-            return null;
-        }
+            FeatureSO feat = null;
+            if (toNode is AnchorNode  an) feat = an.FeatureData;
+            if (toNode is UpgradeNode un) feat = un.FeatureData;
+            if (toNode is SupportNode sn) feat = sn.FeatureData;
 
-        // 7. Prerequisite satisfaction check
-        if (toPort.OwnerNode is FeatureGameNode featureNode)
-        {
-            string prereqError = CheckPrerequisites(featureNode);
-            if (prereqError != null)
+            if (feat != null)
             {
-                OnValidationError?.Invoke(prereqError);
-                return null;
+                string prereqError = CheckPrerequisites(feat);
+                if (prereqError != null)
+                { OnValidationError?.Invoke(prereqError); return null; }
             }
         }
 
-        // ── All checks passed — create connection ──
         var conn = new NodeConnection(fromPort, toPort);
         _connections[conn.ConnectionId] = conn;
         OnConnectionAdded?.Invoke(conn);
         return conn;
     }
 
-    public bool RemoveConnection(string connectionId)
+    public bool RemoveConnection(string connId)
     {
-        if (!_connections.TryGetValue(connectionId, out var conn)) return false;
-
-        conn.FromPort.IsConnected = _connections.Values
-            .Any(c => c.ConnectionId != connectionId && c.FromPortId == conn.FromPortId);
-        conn.ToPort.IsConnected   = _connections.Values
-            .Any(c => c.ConnectionId != connectionId && c.ToPortId   == conn.ToPortId);
-
-        _connections.Remove(connectionId);
+        if (!_connections.TryGetValue(connId, out var conn)) return false;
+        _connections.Remove(connId);
         OnConnectionRemoved?.Invoke(conn);
         return true;
     }
 
     // ════════════════════════════════════════════════════════════════
-    //  VALIDATION HELPERS
+    //  CYCLE DETECTION
     // ════════════════════════════════════════════════════════════════
 
-    private bool WouldCreateCycle(GameNode from, GameNode to)
+    private bool WouldCreateCycle(string fromId, string toId)
     {
-        // BFS/DFS: can we reach 'from' by traversing forward from 'to'?
         var visited = new HashSet<string>();
         var queue   = new Queue<string>();
-        queue.Enqueue(to.NodeId);
-
+        queue.Enqueue(toId);
         while (queue.Count > 0)
         {
-            string current = queue.Dequeue();
-            if (current == from.NodeId) return true;
-            if (!visited.Add(current)) continue;
-
-            foreach (var conn in _connections.Values.Where(c => c.FromNodeId == current))
-                queue.Enqueue(conn.ToNodeId);
+            var cur = queue.Dequeue();
+            if (!visited.Add(cur)) continue;
+            if (cur == fromId) return true;
+            foreach (var c in _connections.Values.Where(c => c.FromNodeId == cur))
+                queue.Enqueue(c.ToNodeId);
         }
         return false;
     }
 
-    /// <summary>
-    /// Returns an error message if the feature's prerequisites are not
-    /// yet present (and connected) in the graph, null if all satisfied.
-    /// </summary>
-    private string CheckPrerequisites(FeatureGameNode node)
-    {
-        foreach (var req in node.Feature.prerequisites)
-        {
-            bool found = _nodes.Values
-                .OfType<FeatureGameNode>()
-                .Any(n => n.Feature == req);
+    // ════════════════════════════════════════════════════════════════
+    //  PREREQUISITE CHECK
+    // ════════════════════════════════════════════════════════════════
 
+    private string CheckPrerequisites(FeatureSO feature)
+    {
+        foreach (var req in feature.prerequisites)
+        {
+            bool found = _nodes.Values.Any(n =>
+                (n is AnchorNode  a && a.FeatureData  == req) ||
+                (n is UpgradeNode u && u.FeatureData  == req) ||
+                (n is SupportNode s && s.FeatureData  == req));
             if (!found)
-                return $"Missing prerequisite: '{req.featureName}' must be placed before '{node.Feature.featureName}'.";
+                return $"Voraussetzung fehlt: '{req.featureName}' muss vor '{feature.featureName}' platziert werden.";
         }
         return null;
     }
 
     // ════════════════════════════════════════════════════════════════
-    //  GRAPH EVALUATION  →  GameBuildResult
+    //  GRAPH EVALUATION  →  NodeTycoonBuildResult
+    //
+    //  RATING = Coherence × 0.45  +  TechFit × 0.35  +  Depth × 0.20
+    //
+    //  Coherence — synergies boost, conflicts penalise
+    //  TechFit   — CPU overrun penalises, missing engine nodes penalise
+    //              over-engineering is NOT penalised (sell it later!)
+    //  Depth     — systems + features weighted by cpu value vs. budget
     // ════════════════════════════════════════════════════════════════
 
-    public GameBuildResult Evaluate(float maxCpu, float maxRam)
+    /// <summary>Primary entry point — call this to score a finished graph.</summary>
+    public NodeTycoonBuildResult EvaluateGame(float cpuBudget, float staffMultiplier = 1f)
+        => EvaluateTycoon(cpuBudget, staffMultiplier);
+
+    public NodeTycoonBuildResult EvaluateTycoon(float cpuBudget, float staffMultiplier = 1f)
     {
-        var result = new GameBuildResult();
+        var result = new NodeTycoonBuildResult { CpuBudget = cpuBudget };
 
-        // Collect all feature nodes reachable from any PillarStart
-        var reachable = GetReachableFeatureNodes();
+        // ── Collect nodes (new types + legacy aliases) ────────────
+        var genreNode = _nodes.Values.OfType<GenreNode>().FirstOrDefault();
 
-        var featureSet = reachable.Select(n => n.Feature).ToList();
+        var systems  = _nodes.Values.OfType<SystemNode>().ToList();
+        var features = _nodes.Values.OfType<GameFeatureNode>().ToList();
+        var supports = _nodes.Values.OfType<SupportNode>().ToList();
+        var engines  = _nodes.Values.OfType<EngineNode>().ToList();
+        var optims   = _nodes.Values.OfType<OptimizeNode>().ToList();
 
-        foreach (var fn in reachable)
+        // Backward-compat: AnchorNode / UpgradeNode are subclasses — already captured above
+        result.AnchorNodes  = systems.OfType<AnchorNode>().ToList();
+        result.UpgradeNodes = features.OfType<UpgradeNode>().ToList();
+        result.SupportNodes = supports;
+
+        // ── Required Genre outputs ────────────────────────────────
+        if (genreNode != null)
         {
-            result.SelectedFeatures.Add(fn.Feature);
-            result.TotalCpuUsage += fn.Feature.cpuUsage;
-            result.TotalRamUsage += fn.Feature.ramUsage;
-
-            // Conflict check — mark invalid and record which pair conflicts
-            if (fn.Feature.conflictsWith != null)
-            {
-                foreach (var conflict in fn.Feature.conflictsWith)
-                {
-                    if (featureSet.Contains(conflict))
-                    {
-                        result.ConflictPairs.Add((fn.Feature.featureName, conflict.featureName));
-                        result.IsValid = false;
-                    }
-                }
-            }
-
-            // Synergy bonus — each matching partner adds to quality
-            float synergyMult = 1f;
-            if (fn.Feature.synergyWith != null)
-            {
-                int matches = fn.Feature.synergyWith.Count(s => featureSet.Contains(s));
-                synergyMult += Mathf.Min(matches * 0.10f, 0.50f);
-                if (matches > 0) result.SynergyBonusTotal += matches * 0.10f;
-            }
-
-            float optimizerBonus = GetOptimizerBonus(fn);
-            result.QualityScore += fn.Feature.cpuUsage * (1f + optimizerBonus) * synergyMult;
-
-            result.FeaturesByPillar
-                .GetOrCreate(fn.Feature.category)
-                .Add(fn.Feature);
+            if (!genreNode.GameplayOut.IsConnected)
+                result.MissingRequiredSlots.Add("⚡ GAMEPLAY — Gameplay-System fehlt");
+            if (!genreNode.GraphicOut.IsConnected)
+                result.MissingRequiredSlots.Add("🎨 GRAFIK — Renderer-EngineNode fehlt");
+            if (!genreNode.SoundOut.IsConnected)
+                result.MissingRequiredSlots.Add("🔊 SOUND — Audio-Node fehlt");
+            if (result.MissingRequiredSlots.Count > 0)
+                result.IsValid = false;
         }
 
-        bool budgetOk        = result.TotalCpuUsage <= maxCpu && result.TotalRamUsage <= maxRam;
-        result.IsValid       = result.IsValid && budgetOk;
-        result.CpuOverBudget = result.TotalCpuUsage - maxCpu;
-        result.RamOverBudget = result.TotalRamUsage - maxRam;
+        // ── Dev time ──────────────────────────────────────────────
+        float devWeeks = 0f;
+        foreach (var n in systems)  devWeeks += n.DevWeeks;
+        foreach (var n in features) devWeeks += n.DevWeeks;
+        foreach (var n in supports) devWeeks += n.DevWeeks;
+        foreach (var n in engines)  devWeeks += n.DevWeeks;
+        foreach (var n in optims)   devWeeks += n.DevTimeCost;
+        result.TotalDevWeeks = devWeeks;
 
-        // Normalize quality 0–100
-        float maxPossible = _nodes.Values.OfType<FeatureGameNode>()
-                                         .Sum(n => n.Feature.cpuUsage * 1.5f);
-        result.QualityScore = maxPossible > 0
-            ? Mathf.Clamp01(result.QualityScore / maxPossible) * 100f
+        // ── CPU ───────────────────────────────────────────────────
+        float rawCpu = 0f;
+        foreach (var n in systems)  rawCpu += n.FeatureData?.cpuUsage ?? 0f;
+        foreach (var n in features) rawCpu += n.FeatureData?.cpuUsage ?? 0f;
+        foreach (var n in supports) rawCpu += n.FeatureData?.cpuUsage ?? 0f;
+        foreach (var n in engines)  rawCpu += n.CpuCost;
+
+        float optimReduction = 0f;
+        float optimQualBonus = 0f;
+        foreach (var o in optims)
+        {
+            optimReduction       += o.CpuReductionPercent;
+            optimQualBonus       += o.QualityBonus;
+            result.DevTimeCost   += o.DevTimeCost;
+        }
+        float effectiveCpu        = Mathf.Max(0f, rawCpu - optimReduction);
+        result.TotalCpuUsage      = effectiveCpu;
+        result.CpuReductionByOpt  = optimReduction;
+
+        // ═════════════════════════════════════════════════════════
+        //  PILLAR 1 — COHERENCE  (weight 0.45)
+        //  Synergies bonus, conflicts penalty
+        // ═════════════════════════════════════════════════════════
+        var allFeatureSOs = systems.Select(s => s.FeatureData)
+            .Concat(features.Select(f => f.FeatureData))
+            .Concat(supports.Select(s => s.FeatureData))
+            .Where(f => f != null).ToList();
+
+        float coherence = 1f;
+        float synergyBonus  = 0f;
+        float conflictPenalty = 0f;
+
+        foreach (var feat in allFeatureSOs)
+        {
+            int syn = feat.synergyWith?.Count(s => allFeatureSOs.Contains(s)) ?? 0;
+            synergyBonus += syn * 0.08f;
+            result.SynergyBonusTotal += syn * 0.08f;
+
+            foreach (var cf in feat.conflictsWith ?? new List<FeatureSO>())
+            {
+                if (!allFeatureSOs.Contains(cf)) continue;
+                conflictPenalty += 0.20f;
+                result.IsValid = false;
+                var pair = (feat.featureName, cf.featureName);
+                if (!result.ConflictPairs.Any(p => (p.A == pair.Item1 && p.B == pair.Item2) ||
+                                                   (p.A == pair.Item2 && p.B == pair.Item1)))
+                    result.ConflictPairs.Add(pair);
+            }
+        }
+        coherence = Mathf.Clamp(1f + Mathf.Min(synergyBonus, 0.60f) - conflictPenalty, 0f, 2f);
+        result.S_Fit = coherence;
+
+        // ═════════════════════════════════════════════════════════
+        //  PILLAR 2 — TECH FIT  (weight 0.35)
+        //  CPU overrun and missing engine nodes penalise.
+        //  Over-engineering does NOT penalise — sell it later!
+        // ═════════════════════════════════════════════════════════
+        float techFit = 1f;
+
+        if (effectiveCpu > cpuBudget)
+        {
+            float overrun = effectiveCpu - cpuBudget;
+            techFit = Mathf.Max(0f, 1f - (overrun / cpuBudget) * 1.5f);
+            result.IsValid = false;
+            result.CpuOverBudget = overrun;
+        }
+
+        // Features that need a specific EngineNode deployed
+        var deployedComponents = new HashSet<string>(engines.Select(e => e.ComponentName));
+        int missingEngineReqs  = 0;
+        foreach (var fn in features)
+        {
+            if (string.IsNullOrEmpty(fn.RequiredEngineNodeId)) continue;
+            if (deployedComponents.Contains(fn.RequiredEngineNodeId)) continue;
+            missingEngineReqs++;
+            result.MissingRequiredSlots.Add($"⚙ {fn.FeatureData?.featureName} braucht Engine: {fn.RequiredEngineNodeId}");
+            result.IsValid = false;
+        }
+        techFit  = Mathf.Max(0f, techFit - missingEngineReqs * 0.25f);
+        techFit  = Mathf.Min(techFit + optimQualBonus, 1.5f);   // optimizer quality bonus
+        result.S_Tech = techFit;
+
+        // ═════════════════════════════════════════════════════════
+        //  PILLAR 3 — DEPTH  (weight 0.20)
+        //  Systems + features weighted by CPU value vs. budget
+        // ═════════════════════════════════════════════════════════
+        float depthRaw = 0f;
+        foreach (var sys in systems)
+        {
+            float sc = sys.FeatureData?.cpuUsage ?? 0f;
+            foreach (var fn in GetFeaturesForSystem(sys.NodeId))
+            {
+                sc += (fn.FeatureData?.cpuUsage ?? 0f) * 1.2f * (1f + GetOptimizerBonusForNode(fn.NodeId));
+                result.UpgradeDepthTotal++;
+            }
+            depthRaw += sc;
+        }
+        foreach (var su in supports)
+            depthRaw += (su.FeatureData?.cpuUsage ?? 0f) * 0.8f;
+
+        float depth = systems.Count > 0
+            ? Mathf.Clamp(depthRaw / Mathf.Max(cpuBudget * 0.8f, 1f), 0f, 2f)
             : 0f;
+        result.S_Quality = depth;
 
+        // ═════════════════════════════════════════════════════════
+        //  FINAL SCORE
+        //  Each pillar is 0–2; weighted sum → normalise to 0–100
+        // ═════════════════════════════════════════════════════════
+        float weighted = coherence * 0.45f + techFit * 0.35f + depth * 0.20f;
+        result.FinalScore       = Mathf.Clamp(weighted * 50f * staffMultiplier, 0f, 100f);
+        result.SelectedFeatures = allFeatureSOs;
         return result;
     }
 
-    private List<FeatureGameNode> GetReachableFeatureNodes()
+    // ── Helpers ───────────────────────────────────────────────────
+
+    /// <summary>Walk FeatureSlot chain from a SystemNode, return all FeatureNodes.</summary>
+    private List<GameFeatureNode> GetFeaturesForSystem(string systemNodeId)
     {
-        var reachable = new List<FeatureGameNode>();
-        var visited   = new HashSet<string>();
-        var queue     = new Queue<string>();
-
-        // Seed from all Pillar Start nodes
-        foreach (var n in _nodes.Values.Where(n => n.Kind == NodeKind.PillarStart))
-            queue.Enqueue(n.NodeId);
-
+        var result  = new List<GameFeatureNode>();
+        var visited = new HashSet<string>();
+        var queue   = new Queue<string>();
+        queue.Enqueue(systemNodeId);
         while (queue.Count > 0)
         {
-            string id = queue.Dequeue();
+            var id = queue.Dequeue();
             if (!visited.Add(id)) continue;
-
-            if (_nodes[id] is FeatureGameNode fn)
-                reachable.Add(fn);
-
             foreach (var conn in _connections.Values.Where(c => c.FromNodeId == id))
-                if (_nodes.ContainsKey(conn.ToNodeId))
-                    queue.Enqueue(conn.ToNodeId);
-        }
-
-        return reachable;
-    }
-
-    private float GetOptimizerBonus(FeatureGameNode node)
-    {
-        float bonus = 0f;
-        if (node.ExpandOut == null) return bonus;
-
-        // Walk Expand chain
-        var portQueue = new Queue<string>();
-        portQueue.Enqueue(node.ExpandOut.PortId);
-
-        while (portQueue.Count > 0)
-        {
-            string outPortId = portQueue.Dequeue();
-            var conn = _connections.Values.FirstOrDefault(c => c.FromPortId == outPortId);
-            if (conn == null) break;
-
-            if (_nodes.TryGetValue(conn.ToNodeId, out var downstream) &&
-                downstream is OptimizerNode opt)
             {
-                bonus += opt.QualityBonus;
-
-                // Chain: optimizer's output can feed into another optimizer
-                var nextOut = opt.OutputPorts.FirstOrDefault();
-                if (nextOut != null) portQueue.Enqueue(nextOut.PortId);
+                if (_nodes.TryGetValue(conn.ToNodeId, out var n) && n is GameFeatureNode fn)
+                { result.Add(fn); queue.Enqueue(fn.NodeId); }
             }
         }
+        return result;
+    }
+
+    // Legacy alias
+    private List<UpgradeNode> GetUpgradesForAnchor(string anchorId)
+        => GetFeaturesForSystem(anchorId).OfType<UpgradeNode>().ToList();
+
+    private float GetOptimizerBonusForNode(string nodeId)
+    {
+        float bonus = 0f;
+        if (!_nodes.TryGetValue(nodeId, out var node)) return bonus;
+
+        // Find an ExpandSlot output on this node
+        NodePort expandOut = node.OutputPorts.FirstOrDefault(p =>
+            p.Type == PortType.ExpandSlot || p.Type == PortType.Expandable);
+        if (expandOut == null) return bonus;
+
+        string outPortId = expandOut.PortId;
+        for (int depth = 0; depth < 5; depth++)
+        {
+            var conn = _connections.Values.FirstOrDefault(c => c.FromPortId == outPortId);
+            if (conn == null) break;
+            if (_nodes.TryGetValue(conn.ToNodeId, out var ds) && ds is OptimizeNode opt)
+            {
+                bonus += opt.QualityBonus;
+                var nextOut = opt.OutputPorts.FirstOrDefault();
+                if (nextOut == null) break;
+                outPortId = nextOut.PortId;
+            }
+            else break;
+        }
         return bonus;
+    }
+
+    // Legacy shim — alter Code ruft Evaluate(maxCpu, maxRam)
+    public GameBuildResult Evaluate(float maxCpu, float maxRam)
+    {
+        var r = EvaluateGame(maxCpu);
+        return new GameBuildResult
+        {
+            SelectedFeatures  = r.SelectedFeatures,
+            TotalCpuUsage     = r.TotalCpuUsage,
+            TotalRamUsage     = 0f,
+            QualityScore      = r.FinalScore,
+            IsValid           = r.IsValid,
+            CpuOverBudget     = r.CpuOverBudget,
+            SynergyBonusTotal = r.SynergyBonusTotal,
+            ConflictPairs     = r.ConflictPairs,
+        };
     }
 }
 
 // ════════════════════════════════════════════════════════════════
-//  GameBuildResult  (output of graph evaluation)
+//  NodeTycoonBuildResult
+// ════════════════════════════════════════════════════════════════
+public class NodeTycoonBuildResult
+{
+    // Pillar-Listen
+    public List<AnchorNode>  AnchorNodes  = new();
+    public List<UpgradeNode> UpgradeNodes = new();
+    public List<SupportNode> SupportNodes = new();
+    public List<FeatureSO>   SelectedFeatures = new();
+
+    // Ressourcen
+    public float CpuBudget;
+    public float TotalCpuUsage;
+    public float CpuReductionByOpt;
+    public float CpuOverBudget;
+    public float DevTimeCost;   // Zusatz-Wochen durch Optimizer
+
+    // Score-Säulen
+    public float S_Fit;
+    public float S_Quality;
+    public float S_Tech;
+    public float S_Staff = 1f;  // Von außen gesetzt
+
+    // Endnote
+    public float FinalScore;    // 0–100
+
+    // Details
+    public float SynergyBonusTotal;
+    public int   UpgradeDepthTotal;
+    public bool  IsValid = true;
+    public List<(string A, string B)> ConflictPairs = new();
+
+    // Pflicht-Ports die noch fehlen (leer = alles verbunden)
+    public List<string> MissingRequiredSlots = new();
+
+    // Gesamte Entwicklungszeit in Wochen (alle Nodes + Optimizer)
+    public float TotalDevWeeks;
+
+    public string Summary =>
+        $"Anker: {AnchorNodes.Count} | Upgrades: {UpgradeNodes.Count} | " +
+        $"Support: {SupportNodes.Count} | CPU: {TotalCpuUsage:0}/{CpuBudget:0} | " +
+        $"Score: {FinalScore:0.0}/100\n" +
+        $"  S_Fit={S_Fit:0.00}  S_Quality={S_Quality:0.00}  S_Tech={S_Tech:0.00}  S_Staff={S_Staff:0.00}";
+}
+
+// ════════════════════════════════════════════════════════════════
+//  Legacy shim — GameBuildResult wird noch von UIController u.a. genutzt
 // ════════════════════════════════════════════════════════════════
 public class GameBuildResult
 {
@@ -324,30 +452,13 @@ public class GameBuildResult
     public float TotalCpuUsage;
     public float TotalRamUsage;
     public float QualityScore;
-    public bool  IsValid = true;   // starts true; set false on conflict or budget breach
+    public bool  IsValid = true;
     public float CpuOverBudget;
     public float RamOverBudget;
-    public float SynergyBonusTotal;                              // NEW
-    public List<(string A, string B)> ConflictPairs = new();    // NEW
+    public float SynergyBonusTotal;
+    public List<(string A, string B)> ConflictPairs = new();
 
     public string Summary =>
         $"Features: {SelectedFeatures.Count} | CPU: {TotalCpuUsage:0}% | " +
-        $"RAM: {TotalRamUsage:0}% | Quality: {QualityScore:0.0}/100" +
-        (SynergyBonusTotal > 0 ? $" | Synergien: +{SynergyBonusTotal*100:0}%" : "") +
-        (ConflictPairs.Count > 0 ? $" | ⚠ {ConflictPairs.Count} Konflikt(e)" : "");
-}
-
-// ── Small Dictionary extension ───────────────────────────────────
-public static class DictionaryExtensions
-{
-    public static TValue GetOrCreate<TKey, TValue>(
-        this Dictionary<TKey, TValue> dict, TKey key) where TValue : new()
-    {
-        if (!dict.TryGetValue(key, out var val))
-        {
-            val = new TValue();
-            dict[key] = val;
-        }
-        return val;
-    }
+        $"Qualität: {QualityScore:0.0}/100";
 }

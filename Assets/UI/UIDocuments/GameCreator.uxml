@@ -4,214 +4,235 @@
 
     <ui:VisualElement name="GameCreatorRoot" class="gc-root">
 
-        <!-- ═══ PAGE HEADER ══════════════════════════════════════════ -->
+        <!-- ═══ HEADER ═══════════════════════════════════════════════ -->
         <ui:VisualElement class="gc-header">
-            <ui:Label text="NEUES SPIEL" class="gc-header-title"/>
-            <ui:Label text="Definiere dein Spiel bevor du den Feature-Editor öffnest" class="gc-header-sub"/>
+            <ui:VisualElement class="gc-header-left">
+                <ui:Label text="NEUES SPIEL" class="gc-header-title"/>
+                <ui:Label text="Definiere dein Spiel — dann öffnet sich der Feature-Editor" class="gc-header-sub"/>
+            </ui:VisualElement>
+            <ui:VisualElement name="ScorePreviewBadge" class="gc-score-badge">
+                <ui:Label text="VORSCHAU" class="gc-score-badge-label"/>
+                <ui:Label name="ScorePreviewValue" text="—" class="gc-score-badge-value"/>
+            </ui:VisualElement>
         </ui:VisualElement>
 
         <!-- ═══ STEP INDICATOR ═══════════════════════════════════════ -->
         <ui:VisualElement class="gc-steps">
             <ui:VisualElement class="gc-step step-active" name="StepIndicator1">
-                <ui:Label text="1" class="step-number"/>
-                <ui:Label text="Basis" class="step-label"/>
+                <ui:VisualElement class="step-number-wrap">
+                    <ui:Label text="1" class="step-number"/>
+                </ui:VisualElement>
+                <ui:Label text="KONZEPT" class="step-label"/>
             </ui:VisualElement>
             <ui:VisualElement class="gc-step-line"/>
             <ui:VisualElement class="gc-step" name="StepIndicator2">
-                <ui:Label text="2" class="step-number"/>
-                <ui:Label text="Markt" class="step-label"/>
+                <ui:VisualElement class="step-number-wrap">
+                    <ui:Label text="2" class="step-number"/>
+                </ui:VisualElement>
+                <ui:Label text="MARKT" class="step-label"/>
             </ui:VisualElement>
             <ui:VisualElement class="gc-step-line"/>
             <ui:VisualElement class="gc-step" name="StepIndicator3">
-                <ui:Label text="3" class="step-number"/>
-                <ui:Label text="Technik" class="step-label"/>
+                <ui:VisualElement class="step-number-wrap">
+                    <ui:Label text="3" class="step-number"/>
+                </ui:VisualElement>
+                <ui:Label text="TECHNIK" class="step-label"/>
             </ui:VisualElement>
             <ui:VisualElement class="gc-step-line"/>
             <ui:VisualElement class="gc-step" name="StepIndicator4">
-                <ui:Label text="4" class="step-number"/>
-                <ui:Label text="Features" class="step-label"/>
+                <ui:VisualElement class="step-number-wrap">
+                    <ui:Label text="4" class="step-number"/>
+                </ui:VisualElement>
+                <ui:Label text="ÜBERSICHT" class="step-label"/>
             </ui:VisualElement>
         </ui:VisualElement>
 
-        <!-- ═══ PANELS (only one visible at a time) ══════════════════ -->
-        <ui:VisualElement class="gc-panels">
+        <!-- ═══ PANELS ═══════════════════════════════════════════════ -->
+        <ui:ScrollView name="PanelScroll" class="gc-panel-scroll">
 
-            <!-- ── PANEL 1: BASIS-DATEN ──────────────────────────── -->
+            <!-- ── PANEL 1: KONZEPT ───────────────────────────────── -->
             <ui:VisualElement name="Panel1" class="gc-panel">
-                <ui:Label text="BASIS-DATEN" class="panel-section-label"/>
+                <ui:VisualElement class="gc-two-col">
 
-                <ui:VisualElement class="gc-form-row">
-                    <ui:Label text="Spielname" class="form-label"/>
-                    <ui:TextField name="InputGameName" class="form-input" placeholder-text="z.B. Dragon Quest VII..."/>
-                </ui:VisualElement>
+                    <!-- Left -->
+                    <ui:VisualElement class="gc-col">
+                        <ui:Label text="SPIELNAME" class="gc-section-label"/>
+                        <ui:TextField name="InputGameName" class="gc-text-input"
+                            placeholder-text="z.B. Dragon Quest VII…"/>
 
-                <ui:VisualElement class="gc-form-row">
-                    <ui:Label text="Haupt-Genre" class="form-label"/>
-                    <ui:DropdownField name="DropdownGenre" class="form-dropdown"/>
-                </ui:VisualElement>
+                        <ui:Label text="GENRE" class="gc-section-label" style="margin-top:20px;"/>
+                        <ui:DropdownField name="DropdownGenre" class="gc-dropdown" label="Haupt-Genre"/>
+                        <ui:DropdownField name="DropdownSecondGenre" class="gc-dropdown" label="Sub-Genre" style="margin-top:6px;"/>
 
-                <ui:VisualElement class="gc-form-row">
-                    <ui:Label text="Sub-Genre" class="form-label"/>
-                    <ui:DropdownField name="DropdownSecondGenre" class="form-dropdown"/>
-                </ui:VisualElement>
+                        <!-- Genre loop preview -->
+                        <ui:VisualElement name="LoopPreview" class="gc-loop-preview">
+                            <ui:Label name="LoopTrigger" text="▶  Trigger: —" class="gc-loop-trigger"/>
+                            <ui:Label text="        ↓  Loop  ↓" class="gc-loop-arrow-label"/>
+                            <ui:Label name="LoopResolution" text="■  Resolution: —" class="gc-loop-resolution"/>
+                        </ui:VisualElement>
 
-                <ui:VisualElement class="gc-form-row">
-                    <ui:Label text="Haupt-Thema" class="form-label"/>
-                    <ui:DropdownField name="DropdownTopic" class="form-dropdown"/>
-                </ui:VisualElement>
+                        <ui:Label text="THEMA" class="gc-section-label" style="margin-top:20px;"/>
+                        <ui:DropdownField name="DropdownTopic" class="gc-dropdown" label="Haupt-Thema"/>
+                        <ui:DropdownField name="DropdownSecondTopic" class="gc-dropdown" label="Sub-Thema" style="margin-top:6px;"/>
 
-                <ui:VisualElement class="gc-form-row">
-                    <ui:Label text="Sub-Thema" class="form-label"/>
-                    <ui:DropdownField name="DropdownSecondTopic" class="form-dropdown"/>
-                </ui:VisualElement>
+                        <ui:VisualElement name="SynergyPreview" class="gc-synergy-box">
+                            <ui:Label text="GENRE · THEMA SYNERGIE" class="gc-synergy-title"/>
+                            <ui:Label name="SynergyValue" text="—" class="gc-synergy-value"/>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
 
-                <!-- Genre / Topic Synergy Preview -->
-                <ui:VisualElement name="SynergyPreview" class="synergy-box">
-                    <ui:Label text="SYNERGIE" class="synergy-title"/>
-                    <ui:Label name="SynergyValue" text="—" class="synergy-value"/>
+                    <!-- Right -->
+                    <ui:VisualElement class="gc-col">
+                        <ui:Label text="ENGINE" class="gc-section-label"/>
+                        <ui:DropdownField name="DropdownEngine" class="gc-dropdown" label="Engine wählen"/>
+
+                        <ui:VisualElement name="EngineCard" class="gc-engine-card">
+                            <ui:VisualElement class="gc-engine-card-header">
+                                <ui:Label name="EngineCardName" text="Kein Engine gewählt" class="gc-engine-card-name"/>
+                                <ui:Label name="EngineCardVersion" text="" class="gc-engine-card-version"/>
+                            </ui:VisualElement>
+                            <ui:VisualElement class="gc-engine-stats">
+                                <ui:VisualElement class="gc-engine-stat-row">
+                                    <ui:Label text="CPU-Basis" class="gc-engine-stat-key"/>
+                                    <ui:Label name="EngineStatCpu" text="—" class="gc-engine-stat-val"/>
+                                </ui:VisualElement>
+                                <ui:VisualElement class="gc-engine-stat-row">
+                                    <ui:Label text="RAM-Basis" class="gc-engine-stat-key"/>
+                                    <ui:Label name="EngineStatRam" text="—" class="gc-engine-stat-val"/>
+                                </ui:VisualElement>
+                                <ui:VisualElement class="gc-engine-stat-row">
+                                    <ui:Label text="Grafik-Bonus" class="gc-engine-stat-key"/>
+                                    <ui:Label name="EngineStatGfx" text="—" class="gc-engine-stat-val gc-stat-graphic"/>
+                                </ui:VisualElement>
+                                <ui:VisualElement class="gc-engine-stat-row">
+                                    <ui:Label text="Audio-Bonus" class="gc-engine-stat-key"/>
+                                    <ui:Label name="EngineStatAudio" text="—" class="gc-engine-stat-val gc-stat-sound"/>
+                                </ui:VisualElement>
+                                <ui:VisualElement class="gc-engine-stat-row">
+                                    <ui:Label text="Lizenz / Wo." class="gc-engine-stat-key"/>
+                                    <ui:Label name="EngineStatCost" text="—" class="gc-engine-stat-val gc-stat-cost"/>
+                                </ui:VisualElement>
+                            </ui:VisualElement>
+                            <!-- Engine component tags populated by code -->
+                            <ui:VisualElement name="EngineComponents" class="gc-engine-components"/>
+                        </ui:VisualElement>
+
+                        <ui:Label text="ENGINE-KOMPONENTEN" class="gc-section-label" style="margin-top:16px;"/>
+                        <ui:Label text="Welche Tech-Nodes werden in der Game Creator verfügbar sein" class="gc-hint"/>
+                        <!-- populated by code with chip-style tags per component -->
+                        <ui:VisualElement name="EngineComponentTags" class="gc-component-tags"/>
+                    </ui:VisualElement>
+
                 </ui:VisualElement>
             </ui:VisualElement>
 
-            <!-- ── PANEL 2: MARKT ────────────────────────────────── -->
+            <!-- ── PANEL 2: MARKT ─────────────────────────────────── -->
             <ui:VisualElement name="Panel2" class="gc-panel hidden">
-                <ui:Label text="MARKT &amp; ZIELGRUPPE" class="panel-section-label"/>
+                <ui:VisualElement class="gc-two-col">
 
-                <ui:VisualElement class="gc-form-row">
-                    <ui:Label text="Zielgruppe" class="form-label"/>
-                    <ui:DropdownField name="DropdownAudience" class="form-dropdown"/>
-                </ui:VisualElement>
+                    <ui:VisualElement class="gc-col">
+                        <ui:Label text="ZIELGRUPPE" class="gc-section-label"/>
+                        <ui:DropdownField name="DropdownAudience" class="gc-dropdown" label="Zielgruppe"/>
+                        <ui:DropdownField name="DropdownRating"   class="gc-dropdown" label="Altersfreigabe" style="margin-top:6px;"/>
 
-                <ui:VisualElement class="gc-form-row">
-                    <ui:Label text="Altersfreigabe" class="form-label"/>
-                    <ui:DropdownField name="DropdownRating" class="form-dropdown"/>
-                </ui:VisualElement>
+                        <ui:Label text="PLATTFORM &amp; MARKETING" class="gc-section-label" style="margin-top:20px;"/>
+                        <ui:DropdownField name="DropdownPlatform"  class="gc-dropdown" label="Plattform"/>
+                        <ui:DropdownField name="DropdownMarketing" class="gc-dropdown" label="Marketing-Budget" style="margin-top:6px;"/>
+                    </ui:VisualElement>
 
-                <ui:Label text="ENTWICKLUNGS-FOKUS" class="panel-section-label" style="margin-top: 16px;"/>
-                <ui:Label text="Verteile 100 Punkte auf die Bereiche" class="form-hint"/>
+                    <ui:VisualElement class="gc-col">
+                        <ui:Label text="ENTWICKLUNGS-FOKUS" class="gc-section-label"/>
+                        <ui:Label text="Verteile 100 Punkte auf die drei Bereiche" class="gc-hint"/>
 
-                <ui:VisualElement class="gc-form-row">
-                    <ui:Label text="Gameplay" class="form-label focus-gameplay"/>
-                    <ui:Slider name="SliderGameplay" low-value="0" high-value="100" value="33" class="focus-slider"/>
-                    <ui:Label name="LabelGameplayVal" text="33" class="slider-val"/>
-                </ui:VisualElement>
-                <ui:VisualElement class="gc-form-row">
-                    <ui:Label text="Story / Grafik" class="form-label focus-graphic"/>
-                    <ui:Slider name="SliderGraphics" low-value="0" high-value="100" value="33" class="focus-slider"/>
-                    <ui:Label name="LabelGraphicsVal" text="33" class="slider-val"/>
-                </ui:VisualElement>
-                <ui:VisualElement class="gc-form-row">
-                    <ui:Label text="Sound" class="form-label focus-sound"/>
-                    <ui:Slider name="SliderSound" low-value="0" high-value="100" value="34" class="focus-slider"/>
-                    <ui:Label name="LabelSoundVal" text="34" class="slider-val"/>
-                </ui:VisualElement>
+                        <ui:VisualElement class="gc-slider-row">
+                            <ui:Label text="⚡ Gameplay" class="gc-slider-label gc-label-gameplay"/>
+                            <ui:Slider name="SliderGameplay" low-value="0" high-value="100" value="33" class="gc-slider"/>
+                            <ui:Label name="LabelGameplayVal" text="33" class="gc-slider-val"/>
+                        </ui:VisualElement>
+                        <ui:VisualElement class="gc-slider-row">
+                            <ui:Label text="🎨 Grafik" class="gc-slider-label gc-label-graphic"/>
+                            <ui:Slider name="SliderGraphics" low-value="0" high-value="100" value="33" class="gc-slider"/>
+                            <ui:Label name="LabelGraphicsVal" text="33" class="gc-slider-val"/>
+                        </ui:VisualElement>
+                        <ui:VisualElement class="gc-slider-row">
+                            <ui:Label text="🔊 Sound" class="gc-slider-label gc-label-sound"/>
+                            <ui:Slider name="SliderSound" low-value="0" high-value="100" value="34" class="gc-slider"/>
+                            <ui:Label name="LabelSoundVal" text="34" class="gc-slider-val"/>
+                        </ui:VisualElement>
 
-                <ui:VisualElement class="focus-total-row">
-                    <ui:Label text="Gesamt:" class="form-label"/>
-                    <ui:Label name="LabelFocusTotal" text="100 / 100" class="focus-total"/>
-                </ui:VisualElement>
+                        <ui:VisualElement class="gc-focus-total-row">
+                            <ui:Label text="Gesamt" class="gc-focus-total-label"/>
+                            <ui:Label name="LabelFocusTotal" text="100 / 100" class="gc-focus-total-val"/>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
 
-                <ui:Label text="MARKETING" class="panel-section-label" style="margin-top: 16px;"/>
-
-                <ui:VisualElement class="gc-form-row">
-                    <ui:Label text="Marketing-Budget" class="form-label"/>
-                    <ui:DropdownField name="DropdownMarketing" class="form-dropdown"/>
-                </ui:VisualElement>
-
-                <ui:VisualElement class="gc-form-row">
-                    <ui:Label text="Plattform" class="form-label"/>
-                    <ui:DropdownField name="DropdownPlatform" class="form-dropdown"/>
                 </ui:VisualElement>
             </ui:VisualElement>
 
-            <!-- ── PANEL 3: TECHNIK ──────────────────────────────── -->
+            <!-- ── PANEL 3: TECHNIK ───────────────────────────────── -->
             <ui:VisualElement name="Panel3" class="gc-panel hidden">
-                <ui:Label text="TECHNIK &amp; LIZENZEN" class="panel-section-label"/>
+                <ui:VisualElement class="gc-two-col">
 
-                <ui:VisualElement class="gc-form-row">
-                    <ui:Label text="Engine" class="form-label"/>
-                    <ui:DropdownField name="DropdownEngine" class="form-dropdown"/>
-                </ui:VisualElement>
-
-                <!-- Engine stats preview -->
-                <ui:VisualElement name="EngineStats" class="engine-stats-box">
-                    <ui:VisualElement class="engine-stat-row">
-                        <ui:Label text="CPU-Basis" class="engine-stat-label"/>
-                        <ui:Label name="EngineStatCpu" text="—" class="engine-stat-value"/>
+                    <ui:VisualElement class="gc-col">
+                        <ui:Label text="LIZENZEN" class="gc-section-label"/>
+                        <ui:Label text="Lizenzen verbessern bestimmte Genres oder Features" class="gc-hint"/>
+                        <ui:ScrollView name="LicenseList" class="gc-license-list"/>
                     </ui:VisualElement>
-                    <ui:VisualElement class="engine-stat-row">
-                        <ui:Label text="RAM-Basis" class="engine-stat-label"/>
-                        <ui:Label name="EngineStatRam" text="—" class="engine-stat-value"/>
-                    </ui:VisualElement>
-                    <ui:VisualElement class="engine-stat-row">
-                        <ui:Label text="Grafik-Bonus" class="engine-stat-label"/>
-                        <ui:Label name="EngineStatGfx" text="—" class="engine-stat-value"/>
-                    </ui:VisualElement>
-                    <ui:VisualElement class="engine-stat-row">
-                        <ui:Label text="Lizenz/Woche" class="engine-stat-label"/>
-                        <ui:Label name="EngineStatCost" text="—" class="engine-stat-value"/>
-                    </ui:VisualElement>
-                </ui:VisualElement>
 
-                <ui:Label text="LIZENZEN" class="panel-section-label" style="margin-top: 16px;"/>
-                <ui:Label text="Lizenzen verbessern bestimmte Genres oder Features" class="form-hint"/>
+                    <ui:VisualElement class="gc-col">
+                        <ui:Label text="KONSOLEN" class="gc-section-label"/>
+                        <ui:VisualElement name="ConsoleList" class="gc-console-grid"/>
+                    </ui:VisualElement>
 
-                <ui:ScrollView name="LicenseList" class="license-list">
-                    <!-- populated by code -->
-                </ui:ScrollView>
-
-                <ui:Label text="KONSOLEN" class="panel-section-label" style="margin-top: 16px;"/>
-                <ui:VisualElement name="ConsoleList" class="console-grid">
-                    <!-- populated by code -->
                 </ui:VisualElement>
             </ui:VisualElement>
 
-            <!-- ── PANEL 4: ZUSAMMENFASSUNG ──────────────────────── -->
+            <!-- ── PANEL 4: ÜBERSICHT ─────────────────────────────── -->
             <ui:VisualElement name="Panel4" class="gc-panel hidden">
-                <ui:Label text="ZUSAMMENFASSUNG" class="panel-section-label"/>
+                <ui:VisualElement class="gc-summary-grid">
 
-                <ui:VisualElement class="summary-grid">
-                    <ui:VisualElement class="summary-block">
-                        <ui:Label text="SPIEL" class="summary-block-title"/>
-                        <ui:Label name="SummaryName"     text="—" class="summary-line"/>
-                        <ui:Label name="SummaryGenre"    text="—" class="summary-line"/>
-                        <ui:Label name="SummaryTopic"    text="—" class="summary-line"/>
+                    <ui:VisualElement class="gc-summary-block">
+                        <ui:Label text="SPIEL" class="gc-summary-block-title"/>
+                        <ui:Label name="SummaryName"  text="—" class="gc-summary-line gc-summary-name"/>
+                        <ui:Label name="SummaryGenre" text="—" class="gc-summary-line"/>
+                        <ui:Label name="SummaryTopic" text="—" class="gc-summary-line"/>
                     </ui:VisualElement>
-                    <ui:VisualElement class="summary-block">
-                        <ui:Label text="MARKT" class="summary-block-title"/>
-                        <ui:Label name="SummaryAudience"  text="—" class="summary-line"/>
-                        <ui:Label name="SummaryPlatform"  text="—" class="summary-line"/>
-                        <ui:Label name="SummaryMarketing" text="—" class="summary-line"/>
-                    </ui:VisualElement>
-                    <ui:VisualElement class="summary-block">
-                        <ui:Label text="TECHNIK" class="summary-block-title"/>
-                        <ui:Label name="SummaryEngine"   text="—" class="summary-line"/>
-                        <ui:Label name="SummaryLicenses" text="—" class="summary-line"/>
-                        <ui:Label name="SummaryConsoles" text="—" class="summary-line"/>
-                    </ui:VisualElement>
-                    <ui:VisualElement class="summary-block">
-                        <ui:Label text="FOKUS" class="summary-block-title"/>
-                        <ui:Label name="SummaryFocusGameplay" text="Gameplay: —" class="summary-line"/>
-                        <ui:Label name="SummaryFocusGraphics" text="Grafik: —"   class="summary-line"/>
-                        <ui:Label name="SummaryFocusSound"    text="Sound: —"    class="summary-line"/>
-                    </ui:VisualElement>
-                </ui:VisualElement>
 
-                <!-- Estimated score preview -->
-                <ui:VisualElement class="score-preview">
-                    <ui:Label text="ERWARTETE BEWERTUNG (ohne Features)" class="score-preview-title"/>
-                    <ui:Label name="ScorePreviewValue" text="?" class="score-preview-value"/>
-                    <ui:Label name="ScorePreviewNote"  text="Features im nächsten Schritt auswählen" class="score-preview-note"/>
+                    <ui:VisualElement class="gc-summary-block">
+                        <ui:Label text="TECHNIK" class="gc-summary-block-title"/>
+                        <ui:Label name="SummaryEngine"    text="—" class="gc-summary-line gc-summary-engine"/>
+                        <ui:Label name="SummaryPlatform"  text="—" class="gc-summary-line"/>
+                        <ui:Label name="SummaryMarketing" text="—" class="gc-summary-line"/>
+                    </ui:VisualElement>
+
+                    <ui:VisualElement class="gc-summary-block">
+                        <ui:Label text="MARKT" class="gc-summary-block-title"/>
+                        <ui:Label name="SummaryAudience"      text="—" class="gc-summary-line"/>
+                        <ui:Label name="SummaryFocusGameplay" text="—" class="gc-summary-line gc-label-gameplay"/>
+                        <ui:Label name="SummaryFocusGraphics" text="—" class="gc-summary-line gc-label-graphic"/>
+                        <ui:Label name="SummaryFocusSound"    text="—" class="gc-summary-line gc-label-sound"/>
+                    </ui:VisualElement>
+
+                    <ui:VisualElement class="gc-summary-score-card">
+                        <ui:Label text="SCORE-VORSCHAU" class="gc-summary-block-title"/>
+                        <ui:Label name="ScorePreviewBig" text="—" class="gc-summary-score-big"/>
+                        <ui:Label name="ScoreCoherence"  text="Kohärenz:  —" class="gc-summary-score-line"/>
+                        <ui:Label name="ScoreTechFit"    text="Tech-Fit:  —" class="gc-summary-score-line"/>
+                        <ui:Label name="ScoreDepth"      text="Tiefe:     —" class="gc-summary-score-line"/>
+                        <ui:Label name="ScoreSynergy"    text="Synergien: —" class="gc-summary-score-line gc-synergy-hint"/>
+                    </ui:VisualElement>
+
                 </ui:VisualElement>
             </ui:VisualElement>
 
-        </ui:VisualElement>
+        </ui:ScrollView>
 
-        <!-- ═══ NAVIGATION BUTTONS ═══════════════════════════════════ -->
-        <ui:VisualElement class="gc-nav">
-            <ui:Button text="← Zurück"          name="BtnBack"      class="gc-nav-btn btn-back hidden"/>
-            <ui:VisualElement style="flex-grow: 1;"/>
-            <ui:Button text="Weiter →"           name="BtnNext"      class="gc-nav-btn btn-next"/>
-            <ui:Button text="Feature-Editor öffnen ▶" name="BtnStartDev" class="gc-nav-btn btn-start hidden"/>
+        <!-- ═══ NAV BAR ══════════════════════════════════════════════ -->
+        <ui:VisualElement class="gc-nav-bar">
+            <ui:Button name="BtnBack"     text="← ZURÜCK"         class="gc-btn gc-btn-secondary"/>
+            <ui:VisualElement class="gc-nav-spacer"/>
+            <ui:Button name="BtnNext"     text="WEITER →"         class="gc-btn gc-btn-primary"/>
+            <ui:Button name="BtnStartDev" text="FEATURE-EDITOR →" class="gc-btn gc-btn-confirm hidden"/>
         </ui:VisualElement>
 
     </ui:VisualElement>

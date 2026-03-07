@@ -1,119 +1,133 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
-    <!-- Baukasten.uss optional: remove if not used -->
     <Style src="../StyleSheets/NodeGraph.uss"/>
 
-    <!-- Root wrapper: fills the entire ContentArea -->
     <ui:VisualElement name="NodeGraphRoot" class="nodegraph-root">
 
-        <!-- ═══ TOP BAR ═══════════════════════════════════════════════ -->
+        <!-- ═══ TOP BAR ════════════════════════════════════════════════ -->
         <ui:VisualElement name="NodeGraphTopBar" class="nodegraph-topbar">
-
-            <!-- Left: title + game name -->
             <ui:VisualElement class="topbar-left">
                 <ui:Label text="GAME CREATOR" class="topbar-title"/>
                 <ui:Label name="LabelGameName" text="Neues Spiel" class="topbar-game-name"/>
             </ui:VisualElement>
 
-            <!-- Centre: Pillar filter tabs -->
-            <ui:VisualElement class="topbar-tabs">
-                <ui:Button text="ALLE"      name="TabAll"       class="pillar-tab tab-selected"/>
-                <ui:Button text="GAMEPLAY"  name="TabGameplay"  class="pillar-tab tab-gameplay"/>
-                <ui:Button text="GRAFIK"    name="TabGraphic"   class="pillar-tab tab-graphic"/>
-                <ui:Button text="SOUND"     name="TabSound"     class="pillar-tab tab-sound"/>
-                <ui:Button text="TECH"      name="TabTech"      class="pillar-tab tab-tech"/>
-                <ui:Button text="NARRATIVE" name="TabNarrative" class="pillar-tab tab-narrative"/>
-                <ui:Button text="UX"        name="TabUX"        class="pillar-tab tab-ux"/>
+            <!-- Score formula: (S_Fit + S_Quality + S_Tech) × S_Staff = Score% -->
+            <ui:VisualElement class="topbar-score-pillars">
+                <ui:VisualElement class="score-pillar score-pillar--fit">
+                    <ui:Label text="S_FIT"     class="score-pillar-title"/>
+                    <ui:Label name="LabelSFit" text="—" class="score-pillar-value"/>
+                </ui:VisualElement>
+                <ui:Label text="+" class="score-operator"/>
+                <ui:VisualElement class="score-pillar score-pillar--quality">
+                    <ui:Label text="S_QUALITY"     class="score-pillar-title"/>
+                    <ui:Label name="LabelSQuality" text="—" class="score-pillar-value"/>
+                </ui:VisualElement>
+                <ui:Label text="+" class="score-operator"/>
+                <ui:VisualElement class="score-pillar score-pillar--tech">
+                    <ui:Label text="S_TECH"     class="score-pillar-title"/>
+                    <ui:Label name="LabelSTech" text="—" class="score-pillar-value"/>
+                </ui:VisualElement>
+                <ui:Label text="×" class="score-operator"/>
+                <ui:VisualElement class="score-pillar score-pillar--staff">
+                    <ui:Label text="S_STAFF"     class="score-pillar-title"/>
+                    <ui:Label name="LabelSStaff" text="1.0" class="score-pillar-value"/>
+                </ui:VisualElement>
+                <ui:Label text="=" class="score-operator score-equals"/>
+                <ui:VisualElement name="ScoreFinalBox" class="score-final-box">
+                    <ui:Label text="SCORE" class="score-final-title"/>
+                    <ui:Label name="LabelFinalScore" text="—%" class="score-final-value"/>
+                </ui:VisualElement>
             </ui:VisualElement>
 
-            <!-- Right: stats + actions -->
+            <!-- Right: CPU widget + buttons -->
             <ui:VisualElement class="topbar-right">
-                <ui:Label name="LabelNodeCount"   text="Nodes: 0"       class="topbar-stat"/>
-                <ui:Label name="LabelConnCount"   text="Verbindungen: 0" class="topbar-stat"/>
-                <ui:Button text="OPTIMIZER +"     name="BtnAddOptimizer" class="topbar-btn btn-optimizer"/>
-                <ui:Button text="✓ FINALISIEREN"  name="BtnFinalize"     class="topbar-btn btn-finalize"/>
+                <ui:VisualElement class="topbar-budget-box">
+                    <ui:VisualElement class="budget-header-row">
+                        <ui:Label name="LabelCpuBudget" text="CPU-BUDGET" class="budget-label"/>
+                        <ui:Label name="LabelCpuValue"  text="0 / 120"   class="budget-value-label"/>
+                    </ui:VisualElement>
+                    <ui:VisualElement name="CpuBarTrack" class="cpu-bar-track">
+                        <ui:VisualElement name="CpuBarFill" class="cpu-bar-fill"/>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="cpu-sub-row">
+                        <ui:Label name="LabelNodeCount" text="0 Nodes" class="cpu-sub-label"/>
+                        <ui:Label name="LabelCpuPct"    text="0%"      class="cpu-sub-pct"/>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:Button text="⚙ OPTIMIZER"    name="BtnAddOptimizer" class="topbar-btn btn-optimizer"/>
+                <ui:Button text="✓ FINALISIEREN" name="BtnFinalize"     class="topbar-btn btn-finalize"/>
             </ui:VisualElement>
-
         </ui:VisualElement>
 
-        <!-- ═══ MAIN AREA (Sidebar + Canvas) ════════════════════════ -->
+        <!-- ═══ MAIN AREA ══════════════════════════════════════════════ -->
         <ui:VisualElement name="NodeGraphMain" class="nodegraph-main">
 
-            <!-- ── SIDEBAR ──────────────────────────────────────────── -->
+            <!-- ── SIDEBAR ─────────────────────────────────────────── -->
             <ui:VisualElement name="NodeGraphSidebar" class="nodegraph-sidebar">
 
-                <!-- Sidebar Tabs: Features / Genre -->
+                <!-- Level-1: Node-type tabs -->
                 <ui:VisualElement class="sidebar-tabs">
-                    <ui:Button text="FEATURES"    name="SidebarTabFeatures" class="sidebar-tab sidebar-tab-active"/>
-                    <ui:Button text="GENRE"       name="SidebarTabGenre"    class="sidebar-tab"/>
+                    <ui:Button text="▲ ANKER"   name="SidebarTabAnker"     class="sidebar-tab sidebar-tab--anchor sidebar-tab--active"/>
+                    <ui:Button text="◆ UPGRADE" name="SidebarTabUpgrade"   class="sidebar-tab sidebar-tab--upgrade"/>
+                    <ui:Button text="◉ SUPPORT" name="SidebarTabSupport"   class="sidebar-tab sidebar-tab--support"/>
+                    <ui:Button text="⚙"         name="SidebarTabOptimizer" class="sidebar-tab sidebar-tab--optimizer"/>
+                </ui:VisualElement>
+                <ui:Label name="SidebarTabDesc" text="Haupt-Features die den Spieltyp definieren" class="sidebar-tab-desc"/>
+
+                <!-- Level-2: Category filter row (ALL 6 categories + ALL reset) -->
+                <ui:VisualElement class="sidebar-pillar-filter">
+                    <ui:Button text="ALLE" name="FilterAll"       class="pillar-filter-btn filter-active"/>
+                    <ui:Button text="GP"   name="FilterGameplay"  class="pillar-filter-btn"/>
+                    <ui:Button text="GFX"  name="FilterGraphic"   class="pillar-filter-btn"/>
+                    <ui:Button text="SND"  name="FilterSound"     class="pillar-filter-btn"/>
+                    <ui:Button text="TECH" name="FilterTech"      class="pillar-filter-btn"/>
+                    <ui:Button text="NARR" name="FilterNarrative" class="pillar-filter-btn"/>
+                    <ui:Button text="UX"   name="FilterUX"        class="pillar-filter-btn"/>
                 </ui:VisualElement>
 
-                <!-- Search box -->
-                <ui:TextField name="SearchFeatures" class="sidebar-search" placeholder-text="Suchen..."/>
-
-                <!-- Feature list (populated by code) -->
-                <ui:ScrollView name="FeatureList" class="sidebar-feature-scroll"/>
-
-                <!-- Genre panel (hidden by default) -->
-                <ui:ScrollView name="GenrePanel" class="sidebar-genre-scroll hidden">
-                    <ui:Label text="GENRE" class="sidebar-section-label"/>
-                    <ui:DropdownField name="DropdownGenre"       label="Haupt-Genre"  class="sidebar-dropdown"/>
-                    <ui:DropdownField name="DropdownSecondGenre" label="Sub-Genre"    class="sidebar-dropdown"/>
-                    <ui:DropdownField name="DropdownTopic"       label="Haupt-Thema"  class="sidebar-dropdown"/>
-                    <ui:DropdownField name="DropdownSecondTopic" label="Sub-Thema"    class="sidebar-dropdown"/>
-                    <ui:DropdownField name="DropdownAudience"    label="Zielgruppe"   class="sidebar-dropdown"/>
-                    <ui:Label text="SPIEL INFO" class="sidebar-section-label"/>
-                    <ui:TextField     name="InputGameName"       label="Spielname"    class="sidebar-dropdown"/>
-                </ui:ScrollView>
-
-                <!-- Hardware meters -->
-                <ui:VisualElement class="sidebar-hardware">
-                    <ui:Label text="HARDWARE AUSLASTUNG" class="hardware-title"/>
-                    <ui:VisualElement class="hardware-bar-row">
-                        <ui:Label text="CPU" class="hardware-label"/>
-                        <ui:ProgressBar name="CpuBar" value="0" high-value="100" class="hardware-bar cpu-bar"/>
-                    </ui:VisualElement>
-                    <ui:VisualElement class="hardware-bar-row">
-                        <ui:Label text="RAM" class="hardware-label"/>
-                        <ui:ProgressBar name="RamBar" value="0" high-value="100" class="hardware-bar ram-bar"/>
-                    </ui:VisualElement>
-                    <ui:Label name="QualityLabel" text="Qualität: 0.0 / 100" class="quality-label"/>
-                </ui:VisualElement>
-
+                <ui:ScrollView name="FeatureList" class="feature-list"/>
             </ui:VisualElement>
 
-            <!-- ── CANVAS ────────────────────────────────────────────── -->
-            <!-- NodeCanvas is position:relative, overflow:hidden.
-                 NodeGraphController spawns nodes as absolute children here.
-                 The generateVisualContent callback draws Bezier wires.       -->
+            <!-- ── CANVAS ─────────────────────────────────────────── -->
             <ui:VisualElement name="NodeCanvas" class="nodegraph-canvas">
-
-                <!-- Empty-state hint (hidden once nodes exist) -->
                 <ui:VisualElement name="CanvasHint" class="canvas-hint">
                     <ui:Label text="◈" class="canvas-hint-icon"/>
-                    <ui:Label text="FEATURES AUS DER SIDEBAR AUF DAS BOARD ZIEHEN" class="canvas-hint-text"/>
-                    <ui:Label text="Alt + Ziehen zum Verschieben  ·  Scroll zum Zoomen" class="canvas-hint-sub"/>
+                    <ui:Label text="FEATURES AUS DER SIDEBAR ZIEHEN" class="canvas-hint-text"/>
+                    <ui:Label text="Alt+Drag: Pan  ·  Scroll: Zoom  ·  Ctrl+F: Zentrieren" class="canvas-hint-sub"/>
                 </ui:VisualElement>
-
             </ui:VisualElement>
 
-            <!-- ── INSPECTOR PANEL (right, shown when a node is selected) ── -->
+            <!-- ── INSPECTOR ──────────────────────────────────────── -->
             <ui:VisualElement name="NodeInspector" class="node-inspector hidden">
                 <ui:Label text="INSPEKTOR" class="inspector-title"/>
-                <ui:Label name="InspectorNodeName"   text="—"  class="inspector-node-name"/>
-                <ui:Label name="InspectorPillar"     text="—"  class="inspector-field"/>
-                <ui:Label name="InspectorDesc"       text="—"  class="inspector-desc"/>
-                <ui:Label name="InspectorPrereqs"    text="—"  class="inspector-field"/>
-                <ui:Label name="InspectorCpu"        text="CPU: 0%" class="inspector-field"/>
-                <ui:Label name="InspectorConnIn"     text="Eingehend: 0" class="inspector-field"/>
-                <ui:Label name="InspectorConnOut"    text="Ausgehend: 0" class="inspector-field"/>
+                <ui:Label name="InspectorNodeName"     text="—" class="inspector-node-name"/>
+                <ui:Label name="InspectorPillar"       text="—" class="inspector-field"/>
+                <ui:Label name="InspectorDesc"         text="—" class="inspector-desc"/>
+                <ui:Label name="InspectorPrereqs"      text="—" class="inspector-field"/>
+                <ui:Label name="InspectorCpu"          text="CPU: 0" class="inspector-field"/>
+                <ui:Label name="InspectorConnIn"       text="Eingehend: 0" class="inspector-field"/>
+                <ui:Label name="InspectorConnOut"      text="Ausgehend: 0" class="inspector-field"/>
                 <ui:Label name="InspectorQualityDelta" text="" class="inspector-field inspector-delta"/>
-                <ui:Button text="DUPLIZIEREN"   name="BtnDuplicateNode" class="inspector-btn"/>
-                <ui:Button text="NODE LÖSCHEN"  name="BtnDeleteNode"    class="inspector-btn btn-danger"/>
+                <ui:VisualElement class="inspector-phase-box">
+                    <ui:Label text="PHASE" class="inspector-phase-title"/>
+                    <ui:Label name="PhaseItemPlanung" text="○ Planung"   class="phase-item"/>
+                    <ui:Label name="PhaseItemBau"     text="○ Bau"       class="phase-item"/>
+                    <ui:Label name="PhaseItemPolish"  text="○ Polishing" class="phase-item"/>
+                </ui:VisualElement>
+                <ui:Button text="🔍 DETAILS"   name="BtnShowPopup"     class="inspector-btn"/>
+                <ui:Button text="DUPLIZIEREN"  name="BtnDuplicateNode" class="inspector-btn"/>
+                <ui:Button text="NODE LÖSCHEN" name="BtnDeleteNode"    class="inspector-btn btn-danger"/>
             </ui:VisualElement>
 
         </ui:VisualElement>
 
-        <!-- ═══ TOAST MESSAGE ════════════════════════════════════════ -->
+        <!-- ═══ STATUS BAR ═════════════════════════════════════════════ -->
+        <ui:VisualElement name="NodeGraphStatusBar" class="nodegraph-statusbar">
+            <ui:Label name="LabelConnCount" text="0 Verbindungen" class="status-item"/>
+            <ui:Label name="QualityLabel"   text="Score: —"       class="status-item status-score"/>
+            <ui:Label text="Alt+Drag: Pan  ·  Scroll: Zoom  ·  Ctrl+F: Zentrieren  ·  Del: Löschen  ·  Ctrl+D: Duplizieren" class="status-hint"/>
+        </ui:VisualElement>
+
+        <!-- ═══ TOAST ══════════════════════════════════════════════════ -->
         <ui:VisualElement name="ToastMessage" class="toast hidden">
             <ui:Label name="ToastLabel" text="" class="toast-text"/>
         </ui:VisualElement>

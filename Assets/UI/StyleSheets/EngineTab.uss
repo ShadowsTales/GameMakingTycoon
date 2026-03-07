@@ -1,0 +1,306 @@
+/* ============================================================
+   EngineTab.uss  —  NODE-TYCOON
+   Engine Lab screen.
+   ============================================================ */
+
+.et-root {
+    flex-direction: column;
+    flex-grow: 1;
+    background-color: rgb(8, 12, 20);
+}
+
+/* ── Header ─────────────────────────────────────────────────── */
+.et-header {
+    flex-direction: row;
+    align-items: center;
+    padding: 20px 28px 16px;
+    background-color: rgb(10, 16, 28);
+    border-bottom-width: 1px;
+    border-color: rgb(30, 42, 60);
+}
+.et-header-left { flex-grow: 1; }
+.et-header-title {
+    font-size: 16px;
+    color: rgb(199, 210, 254);
+    -unity-font-style: bold;
+    letter-spacing: 4px;
+}
+.et-header-sub {
+    font-size: 10px;
+    color: rgb(71, 85, 105);
+    margin-top: 3px;
+}
+.et-btn-new {
+    font-size: 10px;
+    color: rgb(199, 210, 254);
+    background-color: rgb(30, 27, 75);
+    border-width: 1px;
+    border-color: rgb(99, 102, 241);
+    border-radius: 4px;
+    padding: 8px 16px;
+    letter-spacing: 1px;
+    -unity-font-style: bold;
+    cursor: link;
+}
+.et-btn-new:hover { background-color: rgb(49, 46, 129); }
+
+/* ── Body ────────────────────────────────────────────────────── */
+.et-body {
+    flex-direction: row;
+    flex-grow: 1;
+    overflow: hidden;
+}
+
+/* ── Engine list ─────────────────────────────────────────────── */
+.et-list-panel {
+    width: 240px;
+    flex-direction: column;
+    background-color: rgb(10, 15, 24);
+    border-right-width: 1px;
+    border-color: rgb(30, 42, 60);
+    padding: 16px 12px;
+}
+.et-panel-title {
+    font-size: 8px;
+    color: rgb(71, 85, 105);
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+}
+.et-engine-list { flex-grow: 1; }
+
+/* Engine list card */
+.et-engine-card {
+    padding: 10px 12px;
+    margin-bottom: 4px;
+    background-color: rgb(15, 23, 42);
+    border-width: 1px;
+    border-color: rgb(30, 42, 60);
+    border-radius: 5px;
+    cursor: link;
+}
+.et-engine-card:hover { border-color: rgb(51, 65, 85); }
+.et-engine-card--selected {
+    border-color: rgb(99, 102, 241);
+    background-color: rgb(20, 30, 60);
+}
+.et-engine-card-name {
+    font-size: 12px;
+    color: rgb(199, 210, 254);
+    -unity-font-style: bold;
+}
+.et-engine-card-meta {
+    font-size: 9px;
+    color: rgb(71, 85, 105);
+    margin-top: 3px;
+}
+.et-engine-card-status {
+    font-size: 8px;
+    color: rgb(71, 85, 105);
+    margin-top: 4px;
+    letter-spacing: 1px;
+}
+.et-engine-card-status--wip      { color: rgb(251, 191, 36); }
+.et-engine-card-status--finished { color: rgb(34, 197, 94); }
+.et-engine-card-status--for-sale { color: rgb(251, 146, 60); }
+
+/* ── Detail panel ────────────────────────────────────────────── */
+.et-detail-panel {
+    flex-grow: 1;
+    flex-direction: column;
+    padding: 24px 28px;
+    overflow: hidden auto;
+}
+
+/* Empty state */
+.et-empty-state {
+    flex-grow: 1;
+    align-items: center;
+    justify-content: center;
+}
+.et-empty-icon  { font-size: 40px; color: rgb(30, 42, 60); margin-bottom: 10px; }
+.et-empty-text  { font-size: 14px; color: rgb(51, 65, 85); }
+.et-empty-sub   { font-size: 10px; color: rgb(30, 42, 60); margin-top: 4px; }
+
+/* Detail header */
+.et-detail { flex-direction: column; flex-grow: 1; }
+.et-detail-header {
+    padding-bottom: 14px;
+    border-bottom-width: 1px;
+    border-color: rgb(30, 42, 60);
+    margin-bottom: 16px;
+}
+.et-detail-title-row {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 6px;
+}
+.et-detail-name {
+    font-size: 20px;
+    color: rgb(226, 232, 240);
+    -unity-font-style: bold;
+}
+.et-detail-version {
+    font-size: 11px;
+    color: rgb(99, 102, 241);
+    margin-left: 10px;
+}
+.et-detail-spacer { flex-grow: 1; }
+.et-detail-desc {
+    font-size: 11px;
+    color: rgb(71, 85, 105);
+    white-space: normal;
+}
+
+/* Status badge */
+.et-status-badge {
+    font-size: 8px;
+    letter-spacing: 1px;
+    padding: 3px 8px;
+    border-radius: 10px;
+    border-width: 1px;
+}
+.et-status-wip      { color: rgb(251, 191, 36); border-color: rgb(251, 191, 36); background-color: rgb(20, 14, 0); }
+.et-status-finished { color: rgb(34, 197, 94);  border-color: rgb(34, 197, 94);  background-color: rgb(0, 20, 10); }
+.et-status-for-sale { color: rgb(251, 146, 60); border-color: rgb(251, 146, 60); background-color: rgb(20, 10, 0); }
+
+/* Stat row */
+.et-stat-row {
+    flex-direction: row;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+.et-stat-tile {
+    flex: 1 1 80px;
+    padding: 10px 12px;
+    margin: 0 4px 4px 0;
+    background-color: rgb(12, 18, 30);
+    border-width: 1px;
+    border-color: rgb(30, 42, 60);
+    border-radius: 5px;
+    align-items: center;
+}
+.et-stat-key {
+    font-size: 7px;
+    color: rgb(71, 85, 105);
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+    -unity-text-align: middle-center;
+}
+.et-stat-val {
+    font-size: 16px;
+    color: rgb(148, 163, 184);
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+}
+.et-stat-graphic { color: rgb(251, 146, 60); }
+.et-stat-sound   { color: rgb(52, 211, 153); }
+.et-stat-cost    { color: rgb(251, 191, 36); }
+
+/* Section label / hint */
+.et-section-label {
+    font-size: 8px;
+    color: rgb(71, 85, 105);
+    letter-spacing: 2px;
+    margin-bottom: 5px;
+}
+.et-hint {
+    font-size: 10px;
+    color: rgb(51, 65, 85);
+    margin-bottom: 10px;
+    white-space: normal;
+}
+
+/* Component grid */
+.et-component-grid {
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+}
+.et-component-card {
+    width: 140px;
+    padding: 10px 12px;
+    margin: 0 6px 6px 0;
+    background-color: rgb(12, 18, 30);
+    border-width: 1px;
+    border-color: rgb(30, 42, 60);
+    border-radius: 5px;
+    border-top-width: 2px;
+}
+.et-component-card--renderer { border-top-color: rgb(251, 146, 60); }
+.et-component-card--audio    { border-top-color: rgb(52, 211, 153); }
+.et-component-card--physics  { border-top-color: rgb(99, 102, 241); }
+.et-component-card--streaming{ border-top-color: rgb(56, 189, 248); }
+.et-component-card--network  { border-top-color: rgb(251, 191, 36); }
+
+.et-component-type {
+    font-size: 7px;
+    color: rgb(71, 85, 105);
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+}
+.et-component-name {
+    font-size: 11px;
+    color: rgb(199, 210, 254);
+    -unity-font-style: bold;
+    white-space: normal;
+}
+.et-component-cpu {
+    font-size: 9px;
+    color: rgb(71, 85, 105);
+    margin-top: 5px;
+}
+
+.et-btn-add-comp {
+    align-self: flex-start;
+    font-size: 9px;
+    color: rgb(71, 85, 105);
+    background-color: transparent;
+    border-width: 1px;
+    border-color: rgb(30, 42, 60);
+    border-radius: 4px;
+    padding: 6px 14px;
+    letter-spacing: 1px;
+    cursor: link;
+    margin-bottom: 20px;
+}
+.et-btn-add-comp:hover { border-color: rgb(99, 102, 241); color: rgb(199, 210, 254); }
+
+/* Footer */
+.et-detail-footer {
+    flex-direction: row;
+    align-items: center;
+    padding-top: 16px;
+    border-top-width: 1px;
+    border-color: rgb(30, 42, 60);
+    margin-top: auto;
+}
+.et-btn {
+    font-size: 10px;
+    -unity-font-style: bold;
+    letter-spacing: 1px;
+    padding: 8px 16px;
+    border-radius: 4px;
+    border-width: 1px;
+    cursor: link;
+    margin-left: 6px;
+}
+.et-btn-sell {
+    background-color: rgb(20, 14, 0);
+    border-color: rgb(251, 146, 60);
+    color: rgb(251, 146, 60);
+}
+.et-btn-sell:hover { background-color: rgb(40, 28, 0); }
+.et-btn-fork {
+    background-color: transparent;
+    border-color: rgb(51, 65, 85);
+    color: rgb(100, 116, 139);
+}
+.et-btn-fork:hover { border-color: rgb(99, 102, 241); color: rgb(199, 210, 254); }
+.et-btn-finalise {
+    background-color: rgb(20, 83, 45);
+    border-color: rgb(34, 197, 94);
+    color: rgb(187, 247, 208);
+}
+.et-btn-finalise:hover { background-color: rgb(22, 101, 52); }
+
+.hidden { display: none; }

@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a089d8f9818898479b371ba1b25dd4f, type: 3}
+  m_Name: BasicEngine
+  m_EditorClassIdentifier: Assembly-CSharp::EngineSO
+  engineName: Unnamed Engine
+  version: 1.0
+  description: 
+  cpuBudget: 100
+  ramBudget: 64
+  graphicBonus: 0
+  audioBonus: 0
+  licenseCostPerWeek: 0
+  components: []
+  status: 0

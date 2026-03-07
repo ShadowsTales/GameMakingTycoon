@@ -1,0 +1,99 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/StyleSheets/Layout.uss"/>
+    <Style src="project://database/Assets/UI/StyleSheets/EngineTab.uss"/>
+
+    <ui:VisualElement name="EngineTabRoot" class="et-root">
+
+        <!-- Header -->
+        <ui:VisualElement class="et-header">
+            <ui:VisualElement class="et-header-left">
+                <ui:Label text="ENGINE-LABOR" class="et-header-title"/>
+                <ui:Label text="Entwickle deine Engine — und setze sie in eigenen Spielen ein oder verkaufe sie" class="et-header-sub"/>
+            </ui:VisualElement>
+            <ui:Button name="BtnNewEngine" text="+ NEUE ENGINE" class="et-btn-new"/>
+        </ui:VisualElement>
+
+        <!-- Body: engine list + detail panel -->
+        <ui:VisualElement class="et-body">
+
+            <!-- Left: engine list -->
+            <ui:VisualElement class="et-list-panel">
+                <ui:Label text="DEINE ENGINES" class="et-panel-title"/>
+                <ui:ScrollView name="EngineList" class="et-engine-list">
+                    <!-- Populated by EngineTabController -->
+                </ui:ScrollView>
+            </ui:VisualElement>
+
+            <!-- Right: selected engine detail -->
+            <ui:VisualElement class="et-detail-panel">
+
+                <!-- Empty state -->
+                <ui:VisualElement name="EngineDetailEmpty" class="et-empty-state">
+                    <ui:Label text="⚙" class="et-empty-icon"/>
+                    <ui:Label text="Wähle eine Engine aus" class="et-empty-text"/>
+                    <ui:Label text="oder erstelle eine neue" class="et-empty-sub"/>
+                </ui:VisualElement>
+
+                <!-- Filled state (hidden until engine selected) -->
+                <ui:VisualElement name="EngineDetail" class="et-detail hidden">
+
+                    <ui:VisualElement class="et-detail-header">
+                        <ui:VisualElement class="et-detail-title-row">
+                            <ui:Label name="DetailEngineName"    text="Engine Name"  class="et-detail-name"/>
+                            <ui:Label name="DetailEngineVersion" text="v1.0"         class="et-detail-version"/>
+                            <ui:VisualElement class="et-detail-spacer"/>
+                            <ui:Label name="DetailEngineStatus"  text="IN ENTWICKLUNG" class="et-status-badge et-status-wip"/>
+                        </ui:VisualElement>
+                        <ui:Label name="DetailEngineDesc" text="—" class="et-detail-desc"/>
+                    </ui:VisualElement>
+
+                    <!-- Stat row -->
+                    <ui:VisualElement class="et-stat-row">
+                        <ui:VisualElement class="et-stat-tile">
+                            <ui:Label text="CPU-BASIS" class="et-stat-key"/>
+                            <ui:Label name="DetailCpu" text="—" class="et-stat-val"/>
+                        </ui:VisualElement>
+                        <ui:VisualElement class="et-stat-tile">
+                            <ui:Label text="RAM-BASIS" class="et-stat-key"/>
+                            <ui:Label name="DetailRam" text="—" class="et-stat-val"/>
+                        </ui:VisualElement>
+                        <ui:VisualElement class="et-stat-tile">
+                            <ui:Label text="GRAFIK-BONUS" class="et-stat-key"/>
+                            <ui:Label name="DetailGfx" text="—" class="et-stat-val et-stat-graphic"/>
+                        </ui:VisualElement>
+                        <ui:VisualElement class="et-stat-tile">
+                            <ui:Label text="AUDIO-BONUS" class="et-stat-key"/>
+                            <ui:Label name="DetailAudio" text="—" class="et-stat-val et-stat-sound"/>
+                        </ui:VisualElement>
+                        <ui:VisualElement class="et-stat-tile">
+                            <ui:Label text="LIZENZ/WO" class="et-stat-key"/>
+                            <ui:Label name="DetailCost" text="—" class="et-stat-val et-stat-cost"/>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+
+                    <!-- Components -->
+                    <ui:Label text="KOMPONENTEN" class="et-section-label"/>
+                    <ui:Label text="Diese Nodes stehen im Game Creator zur Verfügung, wenn diese Engine gewählt wird" class="et-hint"/>
+                    <ui:VisualElement name="ComponentGrid" class="et-component-grid">
+                        <!-- Populated by code: one card per component -->
+                    </ui:VisualElement>
+
+                    <!-- Add component button -->
+                    <ui:Button name="BtnAddComponent" text="+ KOMPONENTE ERFORSCHEN" class="et-btn-add-comp"/>
+
+                    <!-- Footer actions -->
+                    <ui:VisualElement class="et-detail-footer">
+                        <ui:Button name="BtnSellEngine"   text="ENGINE VERKAUFEN"    class="et-btn et-btn-sell"/>
+                        <ui:VisualElement class="et-detail-spacer"/>
+                        <ui:Button name="BtnForkEngine"   text="VERSION ABLEITEN"    class="et-btn et-btn-fork"/>
+                        <ui:Button name="BtnFinalise"     text="ENGINE FERTIGSTELLEN" class="et-btn et-btn-finalise"/>
+                    </ui:VisualElement>
+
+                </ui:VisualElement>
+
+            </ui:VisualElement>
+
+        </ui:VisualElement>
+
+    </ui:VisualElement>
+</ui:UXML>

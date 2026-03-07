@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f766d89922b8c904382c125f5136b25b, type: 3}
+  m_Name: Power-Ups
+  m_EditorClassIdentifier: Assembly-CSharp::FeatureSO
+  featureName: Power-Ups
+  category: 0
+  description: "Sammelbare Items geben tempor\xE4re Boni. Klassische Arcade-Spannungskurve."
+  cpuUsage: 7
+  ramUsage: 2
+  researchCostPoints: 10
+  isResearched: 1
+  releaseYear: 1975
+  canExpand: 0
+  prerequisites: []
+  synergyWith:
+  - {fileID: 11400000, guid: d22b34f4bc6f98040bab56269d8f80ec, type: 2}
+  - {fileID: 11400000, guid: 79801501341e3f64884411198d7dd4cf, type: 2}
+  conflictsWith: []
+  tierOverride: 3
+  yearAvailable: 0

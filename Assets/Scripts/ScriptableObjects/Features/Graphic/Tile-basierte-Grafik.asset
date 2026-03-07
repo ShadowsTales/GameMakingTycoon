@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f766d89922b8c904382c125f5136b25b, type: 3}
+  m_Name: Tile-basierte-Grafik
+  m_EditorClassIdentifier: Assembly-CSharp::FeatureSO
+  featureName: Tile-basierte-Grafik
+  category: 1
+  description: "Die Spielwelt besteht aus wiederholten Grafikbl\xF6cken (Tiles).
+    RAM-effizient."
+  cpuUsage: 15
+  ramUsage: 6
+  researchCostPoints: 10
+  isResearched: 1
+  releaseYear: 1974
+  canExpand: 1
+  prerequisites: []
+  synergyWith:
+  - {fileID: 11400000, guid: ead59a34e81962f4b813a89704070545, type: 2}
+  - {fileID: 11400000, guid: cd38374c7e6d51445b58324c6bc4ab87, type: 2}
+  conflictsWith: []
+  tierOverride: 1
+  yearAvailable: 0

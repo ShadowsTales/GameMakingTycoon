@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f766d89922b8c904382c125f5136b25b, type: 3}
+  m_Name: RAM-Kompression
+  m_EditorClassIdentifier: Assembly-CSharp::FeatureSO
+  featureName: RAM-Kompression
+  category: 3
+  description: Grafik und Daten werden komprimiert. Mehr Inhalt mit gleichem Speicher.
+  cpuUsage: 7
+  ramUsage: -4
+  researchCostPoints: 25
+  isResearched: 1
+  releaseYear: 1976
+  canExpand: 0
+  prerequisites: []
+  synergyWith: []
+  conflictsWith: []
+  tierOverride: 3
+  yearAvailable: 0
