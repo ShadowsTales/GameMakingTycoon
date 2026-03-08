@@ -90,13 +90,28 @@ public partial class NodeGraphController : MonoBehaviour
 
     // Farben nach NodeKind für das neue Design
     internal static readonly Dictionary<NodeKind, Color> KindColors = new()
-    {
-        { NodeKind.Core,      new Color(0.22f, 0.78f, 0.95f) },  // Cyan — Core
-        { NodeKind.Anchor,    new Color(0.96f, 0.62f, 0.04f) },  // Orange — Anker
-        { NodeKind.Upgrade,   new Color(0.48f, 0.85f, 0.32f) },  // Grün — Upgrade
-        { NodeKind.Support,   new Color(0.66f, 0.33f, 0.97f) },  // Violett — Support
-        { NodeKind.Optimizer, new Color(0.94f, 0.27f, 0.27f) },  // Rot — Optimizer
-    };
+{
+    // ── Old names (kept for any legacy code that still references them) ──
+    { NodeKind.Core,      new Color(0.22f, 0.78f, 0.95f) },  // Cyan
+    { NodeKind.Anchor,    new Color(0.96f, 0.62f, 0.04f) },  // Orange
+    { NodeKind.Upgrade,   new Color(0.48f, 0.85f, 0.32f) },  // Green
+    { NodeKind.Support,   new Color(0.66f, 0.33f, 0.97f) },  // Violet
+    { NodeKind.Optimizer, new Color(0.94f, 0.27f, 0.27f) },  // Red
+
+    // ── FIX: New canonical names — map to the same palette ──────────────
+    { NodeKind.Genre,    new Color(0.22f, 0.78f, 0.95f) },  // Cyan   (= Core)
+    { NodeKind.System,   new Color(0.96f, 0.62f, 0.04f) },  // Orange (= Anchor)
+    { NodeKind.Feature,  new Color(0.48f, 0.85f, 0.32f) },  // Green  (= Upgrade)
+    { NodeKind.Engine,   new Color(0.23f, 0.51f, 0.96f) },  // Blue   — distinct for Engine
+    { NodeKind.Optimize, new Color(0.94f, 0.27f, 0.27f) },  // Red    (= Optimizer)
+    // NodeKind.Support already exists above; duplicate key would cause compile error,
+    // so only ONE entry is needed. The old entry covers both old and new names because
+    // NodeKind.Support == 4 in both old and new enum orderings.
+    // If your enum re-ordered values, verify and adjust accordingly.
+
+    // ── Legacy aliases ────────────────────────────────────────────────────
+    { NodeKind.PillarStart, new Color(0.22f, 0.78f, 0.95f) }, // treat like Genre/Core
+};
 
     // ════════════════════════════════════════════════════════════════
     //  SETUP
@@ -367,25 +382,8 @@ public partial class NodeGraphController : MonoBehaviour
         _graph.AddNode(opt);
         ShowToast($"Optimizer hinzugefügt (-{opt.CpuReductionPercent:0}% CPU, +{opt.DevTimeCost:0} Wo.)");
     }
-    /*
-    private void DeleteSelected()
-    {
-        if (_selectedNodeId != null) _graph.RemoveNode(_selectedNodeId);
-    }
-
-    private void DuplicateSelected()
-    {
-        if (_selectedNodeId == null) return;
-        var source = _graph.AllNodes.FirstOrDefault(n => n.NodeId == _selectedNodeId);
-        if (source == null) return;
-
-        GameNode copy = null;
-        if (source is AnchorNode  an) copy = new AnchorNode(an.Feature)  { CanvasPosition = an.CanvasPosition  + new Vector2(30f, 30f) };
-        if (source is UpgradeNode un) copy = new UpgradeNode(un.Feature) { CanvasPosition = un.CanvasPosition  + new Vector2(30f, 30f) };
-        if (source is SupportNode sn) copy = new SupportNode(sn.Feature) { CanvasPosition = sn.CanvasPosition  + new Vector2(30f, 30f) };
-        if (copy != null) _graph.AddNode(copy);
-    }
-    */
+    
+    
     // ════════════════════════════════════════════════════════════════
     //  TOAST
     // ════════════════════════════════════════════════════════════════

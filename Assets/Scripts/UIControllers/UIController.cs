@@ -51,7 +51,7 @@ public class UIController : MonoBehaviour
         root.Q<Button>("BtnFinanzen") ?.RegisterCallback<ClickEvent>(_ => ShowFinanzen());
         root.Q<Button>("BtnResearch") ?.RegisterCallback<ClickEvent>(_ => ShowResearch());
         root.Q<Button>("BtnPersonal") ?.RegisterCallback<ClickEvent>(_ => ShowPersonal());
-        root.Q<Button>("BtnEngine")   ?.RegisterCallback<ClickEvent>(_ => ShowEngineTab()); // NEW
+        root.Q<Button>("R")   ?.RegisterCallback<ClickEvent>(_ => ShowEngineTab()); // NEW
         root.Q<Button>("BtnClosePopup")?.RegisterCallback<ClickEvent>(_ =>
             _popup.AddToClassList("hidden"));
     }

@@ -1,6 +1,6 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
-    <Style src="project://database/Assets/UIToolkitUSS/Layout.uss?fileID=7433441132597879392&amp;guid=2d37ec7d7966a6b46998e2ccf52e470d&amp;type=3#Layout"/>
-    <ui:VisualElement class="tile-grid">
+    <Style src="project://database/Assets/UI/StyleSheets/Layout.uss?fileID=7433441132597879392&amp;guid=2d37ec7d7966a6b46998e2ccf52e470d&amp;type=3#Layout"/>
+    <ui:VisualElement class="tile-grid" style="flex-direction: row;">
         <ui:Button name="Tile_Konto" class="tile tile-wide">
             <ui:Label text="Kontoübersicht" class="tile-header"/>
             <ui:Label text="Saldo: 50.000 €"/>
@@ -9,6 +9,11 @@
         <ui:Button name="Tile_Aktien" class="tile">
             <ui:Label text="Aktienmarkt" class="tile-header"/>
             <ui:Label text="Eigene Anteile: 100%"/>
+        </ui:Button>
+        <ui:Button name="Tile_Konto" class="tile tile-wide">
+            <ui:Label text="Kontoübersicht" class="tile-header"/>
+            <ui:Label text="Saldo: 50.000 €"/>
+            <ui:Label text="Trend: +5% ▲" style="color: rgb(74, 222, 128); margin-top: 10px;"/>
         </ui:Button>
     </ui:VisualElement>
 </ui:UXML>

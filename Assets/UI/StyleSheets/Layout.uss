@@ -231,3 +231,39 @@
     color: #bdc3c7;
     margin-top: 5px;
 }
+
+/* New Finance Styles */
+.chart-placeholder {
+    flex-grow: 1;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+    margin-top: 10px;
+    border-width: 1px;
+    border-color: var(--border);
+    border-style: dashed;
+}
+
+.pie-placeholder {
+    width: 100px;
+    height: 100px;
+    align-self: center;
+    border-radius: 50%;
+    border-width: 8px;
+    border-color: var(--accent);
+    justify-content: center;
+    align-items: center;
+}
+
+/* Specific Stat Styling for Finance */
+.stat-group {
+    flex-direction: row;
+    justify-content: space-between; /* Spaced out for financial rows */
+    margin-bottom: 5px;
+    margin-right: 0; /* Resetting existing stat-group margin [cite: 11] */
+}
+
+/* Wide Tile adjustment for large graphs */
+.tile-wide {
+    width: 610px; /* Slightly wider than standard [cite: 23] */
+    height: 320px;
+}
