@@ -36,8 +36,8 @@ public class ResearchTreeController : MonoBehaviour
     private const float COLLISION_RANGE  = 12f;
     // ════════════════════════════════════════════════════════════════
 
-    private static readonly string[] CatKeys   = { "gameplay", "graphic", "sound", "tech" };
-    private static readonly string[] CatLabels = { "GAMEPLAY", "GRAFIK", "SOUND", "TECHNIK" };
+    private static readonly string[] CatKeys   = { "gameplay", "graphic", "sound", "tech" , "UX", "Narrative" };
+    private static readonly string[] CatLabels = { "GAMEPLAY", "GRAFIK", "SOUND", "TECHNIK", "UX", "NARRATIVE" };
 
     private NodeBoardView         _boardView;
     private NodeConnectionService _connService;
@@ -57,7 +57,7 @@ public class ResearchTreeController : MonoBehaviour
         // NICHT height:100% im UXML, sondern feste Pixel-Werte per Code.
         // Höhe = 4 Lanes. Breite = bis zum letzten Jahr + Rand.
         float totalW = NodeX(MAX_YEAR) + NODE_W + 120f;
-        float totalH = LANE_H * 4f;
+        float totalH = LANE_H * 6f;
 
         _spawnArea.style.width  = totalW;
         _spawnArea.style.height = totalH;
@@ -81,8 +81,8 @@ public class ResearchTreeController : MonoBehaviour
     // ── Lanes ────────────────────────────────────────────────────────
     private void SetupLanes()
     {
-        string[] names = { "Lane_Gameplay", "Lane_Graphic", "Lane_Sound", "Lane_Tech" };
-        for (int i = 0; i < 4; i++)
+        string[] names = { "Lane_Gameplay", "Lane_Graphic", "Lane_Sound", "Lane_Tech", "Lane_UX", "Lane_Narrative" };
+        for (int i = 0; i < 6; i++)
         {
             var lane = _spawnArea.Q(names[i]);
             if (lane == null) continue;

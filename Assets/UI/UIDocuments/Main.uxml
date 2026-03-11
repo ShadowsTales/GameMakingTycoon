@@ -11,6 +11,7 @@
             <ui:Button text="Finanzen" name="BtnFinanzen" class="menu-button"/>
             <ui:Button text="Research" name="BtnResearch" class="menu-button"/>
             <ui:Button text="Personal" name="BtnPersonal" class="menu-button"/>
+            <ui:Button text="Engine" name="BtnEngine" class="menu-button"/>
         </ui:VisualElement>
         <ui:VisualElement name="MainContainer" style="flex-grow: 1;">
             <ui:VisualElement name="TopBar" style="justify-content: space-between; flex-direction: row;">
@@ -34,7 +35,7 @@
                     </ui:VisualElement>
                 </ui:VisualElement>
             </ui:VisualElement>
-            <ui:VisualElement name="ContentArea" __unity-builder-selected-element="selected" style="flex-grow: 1; height: 100%;">
+            <ui:VisualElement name="ContentArea" style="flex-grow: 1; height: 100%;">
                 <ui:ScrollView name="ActivePage" style="flex-grow: 1; flex-basis: auto; height: 100%;"/>
             </ui:VisualElement>
         </ui:VisualElement>
