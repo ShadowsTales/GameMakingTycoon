@@ -31,10 +31,10 @@ public class WireDropSuggestionPanel
     //  CONSTRUCTION  — panel lives INSIDE the canvas element
     // ════════════════════════════════════════════════════════════════
 
-    public static WireDropSuggestionPanel Build(VisualElement canvas)
-        => new WireDropSuggestionPanel(canvas);
+    public static WireDropSuggestionPanel Build(VisualElement canvas, NodeScoringService service)
+        => new WireDropSuggestionPanel(canvas, service);
 
-    private WireDropSuggestionPanel(VisualElement canvas)
+    public WireDropSuggestionPanel(VisualElement canvas, NodeScoringService service)
     {
         _panel = new VisualElement { name = "WireDropPanel" };
         _panel.AddToClassList("wire-drop-panel");

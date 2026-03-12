@@ -64,14 +64,13 @@
             <!-- ── SIDEBAR ─────────────────────────────────────────── -->
             <ui:VisualElement name="NodeGraphSidebar" class="nodegraph-sidebar">
 
-                <!-- Level-1: Node-type tabs -->
-                <ui:VisualElement class="sidebar-tabs">
-                    <ui:Button text="▲ ANKER"   name="SidebarTabAnker"     class="sidebar-tab sidebar-tab--anchor sidebar-tab--active"/>
-                    <ui:Button text="◆ UPGRADE" name="SidebarTabUpgrade"   class="sidebar-tab sidebar-tab--upgrade"/>
-                    <ui:Button text="◉ SUPPORT" name="SidebarTabSupport"   class="sidebar-tab sidebar-tab--support"/>
-                    <ui:Button text="⚙"         name="SidebarTabOptimizer" class="sidebar-tab sidebar-tab--optimizer"/>
-                </ui:VisualElement>
-                <ui:Label name="SidebarTabDesc" text="Haupt-Features die den Spieltyp definieren" class="sidebar-tab-desc"/>
+               <ui:VisualElement class="sidebar-tabs">
+    <ui:Button text="■ SYSTEM"   name="SidebarTabSystem"    class="sidebar-tab sidebar-tab--system sidebar-tab--active"/>
+    <ui:Button text="◆ FEATURE"  name="SidebarTabFeature"   class="sidebar-tab sidebar-tab--feature"/>
+    <ui:Button text="◉ SUPPORT"  name="SidebarTabSupport"   class="sidebar-tab sidebar-tab--support"/>
+    <ui:Button text="⚙"          name="SidebarTabOptimizer" class="sidebar-tab sidebar-tab--optimizer"/>
+</ui:VisualElement>
+<ui:Label name="SidebarTabDesc" text="Haupt-Mechaniken, die den Spieltyp definieren" class="sidebar-tab-desc"/>
 
                 <!-- Level-2: Category filter row (ALL 6 categories + ALL reset) -->
                 <ui:VisualElement class="sidebar-pillar-filter">

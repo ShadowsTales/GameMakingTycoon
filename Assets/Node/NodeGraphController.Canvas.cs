@@ -1,122 +1,105 @@
 // ════════════════════════════════════════════════════════════════
-//  NodeGraphController.Canvas.cs  — NODE-TYCOON (QoL Update)
+//  NodeGraphController.Canvas.cs  — NODE-TYCOON
 //
-//  NEU:
-//   • Gepunktetes Grid als Canvas-Hintergrund
-//   • Wire-Drop-Suggestion Panel (loslassen auf leerem Canvas)
-//   • Feature-Popup bei Klick auf Node (Doppelklick)
-//   • Zoom (Scroll-Rad, Ctrl+0 zum Resetten)
-//   • Verbesserte Draht-Farben + animierter Glow
+//  Handles:
+//    • Canvas pan / zoom
+//    • Wire drawing (port → port)
+//    • Wire-drop suggestion (drag onto empty canvas)
+//    • Ghost card drag preview
+//    • Node selection / deletion / duplication
+//    • Canvas hint visibility
 // ════════════════════════════════════════════════════════════════
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
-using System.Collections.Generic;
 
 public partial class NodeGraphController
 {
-    // ── Pan / Zoom state ──────────────────────────────────────────
-    private bool    _isPanning;
-    private Vector2 _panStartMouse;
-    private Vector2 _panOffset;
-    private float   _zoom = 1f;
-    private const float ZoomMin = 0.4f;
-    private const float ZoomMax = 2.0f;
-
-    // ── Wire state ────────────────────────────────────────────────
-    private NodePort _wireSource;
-    private Vector2  _wireSrcWorld;
-    private Vector2  _wireEndWorld;
-    private bool     _isDrawingWire;
-
-    // ── Popup + Wire-Drop ─────────────────────────────────────────
-    private FeaturePopupController   _featurePopup;
-    private WireDropSuggestionPanel  _wireDrop;
+    // ── Ghost card ────────────────────────────────────────────────
+    private VisualElement _ghostCard;
 
     // ════════════════════════════════════════════════════════════════
-    //  CANVAS LAYER INIT
+    //  CANVAS SETUP
     // ════════════════════════════════════════════════════════════════
 
-    private void InitCanvasLayer()
+    private void SetupCanvas(VisualElement root)
     {
-        // Grid-Hintergrund
-        var grid = new VisualElement { name = "CanvasGrid" };
-        grid.AddToClassList("canvas-grid");
-        grid.pickingMode = PickingMode.Ignore;
-        grid.generateVisualContent += DrawGrid;
-        _canvas.Add(grid);
-        grid.StretchToParentSize();
+        _canvas.RegisterCallback<WheelEvent>(OnScroll);
+        _canvas.RegisterCallback<PointerDownEvent>(OnCanvasDown);
+        _canvas.RegisterCallback<PointerMoveEvent>(OnCanvasMove);
+        _canvas.RegisterCallback<PointerUpEvent>(OnCanvasUp);
+        _canvas.generateVisualContent += DrawWires;
 
-        // Content-Layer (für Nodes, pannable)
-        _canvasContent = new VisualElement { name = "CanvasContent" };
-        _canvasContent.style.position      = Position.Absolute;
-        _canvasContent.style.width         = 4000;
-        _canvasContent.style.height        = 3000;
-        _canvasContent.pickingMode         = PickingMode.Ignore;
-        _canvas.Add(_canvasContent);
+        root.Q<Button>("BtnFinalize")?.RegisterCallback<ClickEvent>(_ => FinalizeGame());
 
-        // Tooltip
-        _tooltip = BuildTooltipElement();
-        _tooltip.style.position = Position.Absolute;
-        _tooltip.pickingMode    = PickingMode.Ignore;
-        _canvas.Add(_tooltip);
-
-        // Ghost Card (Drag-Vorschau)
-        _ghostCard = new VisualElement { name = "GhostCard" };
-        _ghostCard.AddToClassList("ghost-drag-card");
-        _ghostCard.style.position = Position.Absolute;
-        _ghostCard.style.display  = DisplayStyle.None;
-        _ghostCard.pickingMode    = PickingMode.Ignore;
-        _canvas.Add(_ghostCard);
-
-        // Feature Popup
-        _featurePopup = FeaturePopupController.Build(_canvas.parent ?? _canvas, _scoring);
-
-        // Wire-Drop Suggestion Panel
-        _wireDrop = WireDropSuggestionPanel.Build(_canvas);
-
-        // Wire Painter
-        _canvas.generateVisualContent += DrawAllWires;
-    }
-
-    private void InitCanvasEvents()
-    {
-        _canvas.focusable = true;
-        _canvas.RegisterCallback<PointerDownEvent>(OnCanvasDown, TrickleDown.TrickleDown);
-        _canvas.RegisterCallback<PointerMoveEvent>(OnCanvasMove, TrickleDown.TrickleDown);
-        _canvas.RegisterCallback<PointerUpEvent>  (OnCanvasUp,   TrickleDown.TrickleDown);
-        _canvas.RegisterCallback<WheelEvent>      (OnCanvasWheel);
-        _canvas.RegisterCallback<KeyDownEvent>    (OnKeyDown);
-    }
-
-    // ════════════════════════════════════════════════════════════════
-    //  GRID PAINTER
-    // ════════════════════════════════════════════════════════════════
-
-    private void DrawGrid(MeshGenerationContext mgc)
-    {
-        var p    = mgc.painter2D;
-        var rect = _canvas.contentRect;
-        if (rect.width < 1 || rect.height < 1) return;
-
-        float gridStep   = 28f * _zoom;
-        float offsetX    = _panOffset.x % gridStep;
-        float offsetY    = _panOffset.y % gridStep;
-        var   dotColor   = new Color(0.14f, 0.22f, 0.32f, 0.9f);
-        float dotRadius  = 1.2f;
-
-        p.strokeColor = dotColor;
-        p.lineWidth   = dotRadius * 2f;
-
-        for (float x = offsetX; x < rect.width; x += gridStep)
+        root.RegisterCallback<KeyDownEvent>(evt =>
         {
-            for (float y = offsetY; y < rect.height; y += gridStep)
-            {
-                p.BeginPath();
-                p.Arc(new Vector2(x, y), dotRadius, 0f, 360f);
-                p.Fill();
-            }
+            if (evt.keyCode == KeyCode.Delete || evt.keyCode == KeyCode.Backspace)
+                DeleteSelected();
+            if (evt.keyCode == KeyCode.D && evt.ctrlKey)
+                DuplicateSelected();
+            if (evt.keyCode == KeyCode.F && evt.ctrlKey)
+                CenterCanvas();
+        });
+    }
+
+    // ════════════════════════════════════════════════════════════════
+    //  CANVAS REBUILD
+    // ════════════════════════════════════════════════════════════════
+
+    private void RebuildCanvas()
+    {
+        (_canvasContent ?? _canvas).Clear();
+        _nodeViews.Clear();
+
+        foreach (var node in _graph.AllNodes)
+        {
+            var card = BuildNodeCard(node);
+            _nodeViews[node.NodeId] = card;
+            ApplyCanvasTransform(card, node.CanvasPosition);
+            (_canvasContent ?? _canvas).Add(card);
         }
+
+        _canvas.MarkDirtyRepaint();
+        UpdateCanvasHint();
+        UpdateStats();
+        RefreshScore();
+    }
+
+    private void ApplyCanvasTransform(VisualElement card, Vector2 pos)
+    {
+        card.style.position = Position.Absolute;
+        card.style.left     = pos.x;
+        card.style.top      = pos.y;
+    }
+
+    // ════════════════════════════════════════════════════════════════
+    //  PAN / ZOOM
+    // ════════════════════════════════════════════════════════════════
+
+    private void ApplyPanZoom()
+    {
+        var c = _canvasContent ?? _canvas;
+        c.style.scale          = new Scale(new Vector3(_zoom, _zoom, 1f));
+        c.style.left           = _panOffset.x;
+        c.style.top            = _panOffset.y;
+        c.style.transformOrigin = new TransformOrigin(0, 0, 0);
+        _canvas.MarkDirtyRepaint();
+    }
+
+    private void CenterCanvas()
+    {
+        _panOffset = Vector2.zero;
+        _zoom      = 1f;
+        ApplyPanZoom();
+    }
+
+    private void OnScroll(WheelEvent evt)
+    {
+        float delta  = evt.delta.y > 0 ? 0.9f : 1.1f;
+        _zoom        = Mathf.Clamp(_zoom * delta, ZoomMin, ZoomMax);
+        ApplyPanZoom();
+        evt.StopPropagation();
     }
 
     // ════════════════════════════════════════════════════════════════
@@ -125,33 +108,20 @@ public partial class NodeGraphController
 
     private void OnCanvasDown(PointerDownEvent evt)
     {
-        // Mittlere Maustaste oder Alt+Links = Pan
-        if (evt.button == 2 || (evt.button == 0 && evt.altKey))
+        bool alt = evt.altKey;
+        if (alt && evt.button == 0)
         {
             _isPanning = true;
-            _panStartMouse = evt.position;
             _canvas.CapturePointer(evt.pointerId);
             evt.StopPropagation();
-            return;
         }
-
-        // Linksklick auf leeren Canvas → Deselektieren + Wire abbrechen
-        if (evt.button == 0 && evt.target == _canvas)
-        {
-            SelectNode(null);
-            CancelWire();
-            if (_wireDrop.IsVisible) _wireDrop.Hide();
-        }
-        _canvas.Focus();
     }
 
     private void OnCanvasMove(PointerMoveEvent evt)
     {
         if (_isPanning && _canvas.HasPointerCapture(evt.pointerId))
         {
-            Vector2 delta  = (Vector2)evt.position - _panStartMouse;
-            _panStartMouse = evt.position;
-            _panOffset    += delta;
+            _panOffset += (Vector2)evt.deltaPosition;
             ApplyPanZoom();
             return;
         }
@@ -172,286 +142,290 @@ public partial class NodeGraphController
             return;
         }
 
-        // Wire wurde auf leerem Canvas losgelassen → Vorschläge zeigen
+        // Wire dropped on empty canvas → show suggestions
         if (_isDrawingWire && evt.target == _canvas && _wireSource != null)
         {
-            var dropCanvasPos  = CanvasLocal(evt.position);
+            var dropPos        = CanvasLocal(evt.position);
             var activeFeatures = _graph.AllNodes
-                .OfType<AnchorNode>().Select(n => n.FeatureData)
-                .Concat(_graph.AllNodes.OfType<UpgradeNode>().Select(n => n.FeatureData))
-                .Concat(_graph.AllNodes.OfType<SupportNode>().Select(n => n.FeatureData));
+                .Select(n => n.GetFeatureData())
+                .Where(f => f != null);
 
             var srcPort = _wireSource;
             CancelWire();
 
             _wireDrop.Show(
                 srcPort, featureDB, _scoring,
-                activeFeatures, dropCanvasPos, evt.position,
+                activeFeatures, dropPos, evt.position,
                 (feat, pos) =>
                 {
-                    // Feature spawnen + sofort verbinden
-                    GameNode newNode = IsSupportFeature(feat)
-                        ? (GameNode)new SupportNode(feat) { CanvasPosition = pos }
-                        : IsAnchorFeature(feat)
-                            ? new AnchorNode(feat)  { CanvasPosition = pos }
-                            : new UpgradeNode(feat) { CanvasPosition = pos };
-                    _graph.AddNode(newNode);
+                    SpawnFeatureNode(feat, pos);
 
-                    // Verbindung versuchen
-                    if (newNode.InputPorts.Count > 0)
-                    {
-                        var targetPort = newNode.InputPorts[0];
-                        _graph.TryConnect(srcPort, targetPort);
-                    }
+                    // Immediately try to connect the wire
+                    var newNode = _graph.AllNodes.LastOrDefault(n => n.GetFeatureData() == feat);
+                    if (newNode?.InputPorts.Count > 0)
+                        _graph.TryConnect(srcPort, newNode.InputPorts[0]);
+
                     ShowToast($"✓ '{feat.featureName}' angehängt.");
                 });
         }
     }
 
-    private void OnCanvasWheel(WheelEvent evt)
-    {
-        if (_wireDrop.IsVisible) { _wireDrop.Hide(); return; }
-
-        float delta = -evt.delta.y * 0.05f;
-        float newZoom = Mathf.Clamp(_zoom + delta, ZoomMin, ZoomMax);
-
-        // Zoom um Mausposition
-        Vector2 mouseLocal = _canvas.WorldToLocal(evt.mousePosition);
-        _panOffset = mouseLocal - (mouseLocal - _panOffset) * (newZoom / _zoom);
-        _zoom = newZoom;
-
-        ApplyPanZoom();
-        evt.StopPropagation();
-    }
-
-    private void ApplyPanZoom()
-    {
-        _canvasContent.style.left        = _panOffset.x;
-        _canvasContent.style.top         = _panOffset.y;
-        _canvasContent.style.scale       = new Scale(new Vector3(_zoom, _zoom, 1f));
-        _canvasContent.style.transformOrigin = new TransformOrigin(0, 0, 0);
-        _canvas.MarkDirtyRepaint();
-    }
-
     // ════════════════════════════════════════════════════════════════
-    //  KEYBOARD
+    //  WIRE DRAWING
     // ════════════════════════════════════════════════════════════════
 
-    private void OnKeyDown(KeyDownEvent evt)
+    private void DrawWires(MeshGenerationContext ctx)
     {
-        switch (evt.keyCode)
+        // Bezier wires for all connections
+        foreach (var conn in _graph.AllConnections)
         {
-            case KeyCode.Delete:
-            case KeyCode.Backspace:
-                DeleteSelected(); break;
-            case KeyCode.Escape:
-                CancelWire();
-                _wireDrop.Hide();
-                _featurePopup.Hide();
-                break;
-            case KeyCode.D when evt.ctrlKey:
-                DuplicateSelected(); break;
-            case KeyCode.F when evt.ctrlKey:
-                FocusCenterCanvas(); break;
-            case KeyCode.Alpha0 when evt.ctrlKey:
-                ResetZoom(); break;
+            var fromDot = FindPortDot(conn.FromPortId);
+            var toDot   = FindPortDot(conn.ToPortId);
+            if (fromDot == null || toDot == null) continue;
+
+            var from = (Vector2)fromDot.worldBound.center;
+            var to   = (Vector2)toDot.worldBound.center;
+
+            DrawBezier(ctx, from, to, new Color(0.13f, 0.83f, 0.93f, 0.8f));
+        }
+
+        // In-progress wire
+        if (_isDrawingWire && _wireSource != null)
+        {
+            var srcDot = FindPortDot(_wireSource.PortId);
+            if (srcDot != null)
+            {
+                var from = (Vector2)srcDot.worldBound.center;
+                DrawBezier(ctx, from, _wireEndWorld, new Color(1f, 1f, 1f, 0.4f));
+            }
         }
     }
 
-    private void FocusCenterCanvas()
+    private static void DrawBezier(MeshGenerationContext ctx, Vector2 from, Vector2 to, Color color)
     {
-        if (!_nodeViews.Any()) return;
-        float avgX = _graph.AllNodes.Average(n => n.CanvasPosition.x);
-        float avgY = _graph.AllNodes.Average(n => n.CanvasPosition.y);
-        var rect   = _canvas.contentRect;
-        _panOffset = new Vector2(rect.width / 2f - avgX * _zoom, rect.height / 2f - avgY * _zoom);
-        ApplyPanZoom();
-        ShowToast("⌖ Ansicht zentriert");
-    }
-
-    private void ResetZoom()
-    {
-        _zoom = 1f;
-        ApplyPanZoom();
-        ShowToast("Zoom: 100%");
+        float dx  = Mathf.Abs(to.x - from.x) * 0.5f;
+        var   cp1 = new Vector2(from.x + dx, from.y);
+        var   cp2 = new Vector2(to.x   - dx, to.y);
+        var   painter = ctx.painter2D;
+        painter.strokeColor = color;
+        painter.lineWidth   = 2f;
+        painter.BeginPath();
+        painter.MoveTo(from);
+        painter.BezierCurveTo(cp1, cp2, to);
+        painter.Stroke();
     }
 
     // ════════════════════════════════════════════════════════════════
-    //  WIRE LOGIC
+    //  PORT WIRE INTERACTION
     // ════════════════════════════════════════════════════════════════
 
-    private void BeginWire(NodePort port)
+    internal void StartWire(NodePort port)
     {
-        _wireSource = port; _isDrawingWire = true;
-        _wireDrop.Hide();
-        if (_nodeViews.TryGetValue(port.OwnerNode.NodeId, out var card))
-        {
-            var dot       = FindPortDot(card, port.PortId);
-            _wireSrcWorld = dot?.worldBound.center ?? card.worldBound.center;
-            _wireEndWorld = _wireSrcWorld;
-        }
-        _canvas.MarkDirtyRepaint();
-        ShowToast("Ziehe zu einem Port — ESC zum Abbrechen | Loslassen für Vorschläge");
+        _isDrawingWire = true;
+        _wireSource    = port;
     }
 
     private void CancelWire()
     {
-        _wireSource = null; _isDrawingWire = false;
+        _isDrawingWire = false;
+        _wireSource    = null;
         _canvas.MarkDirtyRepaint();
     }
 
-    private void TryCompleteWire(NodePort target)
-    {
-        if (!_isDrawingWire || _wireSource == null) return;
-        _graph.TryConnect(_wireSource, target);
-        CancelWire();
-    }
-
     // ════════════════════════════════════════════════════════════════
-    //  WIRE PAINTER
+    //  GHOST CARD
     // ════════════════════════════════════════════════════════════════
 
-    private static readonly Dictionary<PortType, Color> WireColors = new()
+    private void ShowGhostCard(FeatureSO feature, Vector2 screenPos)
     {
-        // Required core outputs — colour matches port dot colour
-        { PortType.GameplaySlot,  new Color(0.98f, 0.57f, 0.24f) },  // Orange  — Core→Gameplay
-        { PortType.GraphicSlot,   new Color(0.97f, 0.44f, 0.44f) },  // Red     — Core→Graphic
-        { PortType.SoundSlot,     new Color(0.29f, 0.87f, 0.50f) },  // Green   — Core→Sound
-        // Optional core outputs
-        { PortType.AnchorSlot,    new Color(0.98f, 0.75f, 0.14f) },  // Amber   — Core→Anchor
-        { PortType.SupportSlot,   new Color(0.65f, 0.55f, 0.98f) },  // Purple  — Core→Support
-        // Feature chain
-        { PortType.UpgradeSlot,   new Color(0.29f, 0.87f, 0.50f) },  // Green   — Anchor→Upgrade
-        // Optimizer
-        { PortType.ExpandSlot,    new Color(0.95f, 0.82f, 0.10f) },  // Gold    — expand
-        { PortType.OptimizerSlot, new Color(0.95f, 0.35f, 0.35f) },  // Red     — optimizer
-        // Legacy
-        { PortType.PillarRoot,    new Color(0.98f, 0.57f, 0.24f) },
-        { PortType.FeatureCore,   new Color(0.29f, 0.87f, 0.50f) },
-        { PortType.DataFeed,      new Color(0.65f, 0.55f, 0.98f) },
-        { PortType.Expandable,    new Color(0.95f, 0.82f, 0.10f) },
-    };
-
-    private void DrawAllWires(MeshGenerationContext mgc)
-    {
-        var p = mgc.painter2D;
-
-        foreach (var conn in _graph.AllConnections)
+        if (_ghostCard == null)
         {
-            if (!_nodeViews.TryGetValue(conn.FromNodeId, out var fromCard)) continue;
-            if (!_nodeViews.TryGetValue(conn.ToNodeId,   out var toCard))   continue;
-
-            Vector2 start = _canvas.WorldToLocal(GetPortWorldPos(fromCard, conn.FromPortId));
-            Vector2 end   = _canvas.WorldToLocal(GetPortWorldPos(toCard,   conn.ToPortId));
-
-            var fromPort = fromCard.userData is GameNode gn
-                ? gn.OutputPorts.FirstOrDefault(op => op.PortId == conn.FromPortId)
-                : null;
-            Color col = fromPort != null && WireColors.TryGetValue(fromPort.Type, out var wc)
-                ? wc : new Color(0.5f, 0.5f, 0.6f);
-
-            DrawWire(p, start, end, col);
+            _ghostCard = new VisualElement();
+            _ghostCard.AddToClassList("ghost-card");
+            _ghostCard.pickingMode = PickingMode.Ignore;
         }
 
-        // Laufende Verbindung (beim Ziehen)
-        if (_isDrawingWire)
-        {
-            Color dragColor = _wireSource != null && WireColors.TryGetValue(_wireSource.Type, out var dc)
-                ? new Color(dc.r, dc.g, dc.b, 0.7f)
-                : new Color(1f, 1f, 1f, 0.55f);
-            DrawWire(p,
-                _canvas.WorldToLocal(_wireSrcWorld),
-                _canvas.WorldToLocal(_wireEndWorld),
-                dragColor, glow: false, dashed: true);
-        }
+        _ghostCard.Q<Label>()?.RemoveFromHierarchy();
+        _ghostCard.Add(new Label(feature.featureName) { pickingMode = PickingMode.Ignore });
+        _canvas.Add(_ghostCard);
+        MoveGhostCard(screenPos);
     }
 
-    private static void DrawWire(Painter2D p, Vector2 a, Vector2 b, Color col,
-                                  bool glow = true, bool dashed = false)
+    private void MoveGhostCard(Vector2 screenPos)
     {
-        if (glow)
-        {
-            p.strokeColor = new Color(col.r, col.g, col.b, 0.12f);
-            p.lineWidth   = 12f;
-            Bezier(p, a, b);
-        }
-        p.strokeColor = col;
-        p.lineWidth   = dashed ? 1.5f : 2f;
-        Bezier(p, a, b);
-        Arrow(p, a, b, col);
+        if (_ghostCard == null) return;
+        var local = _canvas.WorldToLocal(screenPos);
+        _ghostCard.style.left = local.x + 8f;
+        _ghostCard.style.top  = local.y + 8f;
     }
 
-    private static void Bezier(Painter2D p, Vector2 a, Vector2 b)
+    private void HideGhostCard()
     {
-        float dx = Mathf.Max(Mathf.Abs(b.x - a.x) * 0.55f, 50f);
-        p.BeginPath();
-        p.MoveTo(a);
-        p.BezierCurveTo(a + new Vector2(dx, 0), b - new Vector2(dx, 0), b);
-        p.Stroke();
-    }
-
-    private static void Arrow(Painter2D p, Vector2 from, Vector2 to, Color col)
-    {
-        Vector2 dir  = (to - from).normalized;
-        Vector2 perp = new Vector2(-dir.y, dir.x);
-        p.strokeColor = col;
-        p.lineWidth   = 2f;
-        p.BeginPath();
-        p.MoveTo(to - dir * 9f + perp * 4f);
-        p.LineTo(to);
-        p.LineTo(to - dir * 9f - perp * 4f);
-        p.Stroke();
+        _ghostCard?.RemoveFromHierarchy();
     }
 
     // ════════════════════════════════════════════════════════════════
-    //  KOORDINATEN-HILFSMETHODEN
+    //  SELECTION
     // ════════════════════════════════════════════════════════════════
 
-    private Vector2 GetPortWorldPos(VisualElement card, string portId)
+    private void SelectNode(string nodeId)
     {
-        var dot = FindPortDot(card, portId);
-        return dot != null ? dot.worldBound.center : card.worldBound.center;
+        // Deselect previous
+        if (_selectedNodeId != null && _nodeViews.TryGetValue(_selectedNodeId, out var prev))
+            prev.RemoveFromClassList("node-selected");
+
+        _selectedNodeId = nodeId;
+
+        if (nodeId != null && _nodeViews.TryGetValue(nodeId, out var next))
+            next.AddToClassList("node-selected");
+
+        RefreshInspector(nodeId);
     }
 
-    private VisualElement FindPortDot(VisualElement el, string portId)
+    private void RefreshInspector(string nodeId)
     {
-        if (el.userData is NodePort p && p.PortId == portId) return el;
-        foreach (var child in el.Children())
-        { var f = FindPortDot(child, portId); if (f != null) return f; }
-        return null;
+        if (_inspector == null) return;
+
+        if (nodeId == null)
+        {
+            _inspector.AddToClassList("hidden");
+            return;
+        }
+
+        var node = _graph.AllNodes.FirstOrDefault(n => n.NodeId == nodeId);
+        if (node == null) return;
+
+        _inspector.RemoveFromClassList("hidden");
+
+        _inspector.Q<Label>("InspectorNodeName")?.SetText(node.DisplayName);
+        _inspector.Q<Label>("InspectorPillar")?.SetText(node.Pillar.ToString());
+
+        var feat = node.GetFeatureData();
+        _inspector.Q<Label>("InspectorCpu")?.SetText(feat != null ? $"CPU: {feat.cpuUsage:0}" : "—");
+        _inspector.Q<Label>("InspectorDev")?.SetText($"Dev: {node.DevWeeks:0.0}w");
     }
 
-    // Canvas-content local position (berücksichtigt Pan + Zoom)
-    private Vector2 CanvasLocal(Vector2 screenPos) =>
-        ((Vector2)_canvas.WorldToLocal(screenPos) - _panOffset) / _zoom;
+    // ════════════════════════════════════════════════════════════════
+    //  NODE ACTIONS
+    // ════════════════════════════════════════════════════════════════
 
-    // ── Klassifizierungs-Helfer (auch in Canvas gebraucht) ────────
-    private static bool IsAnchorFeature(FeatureSO f) =>
-        (f.category == FeatureSO.FeatureCategory.Gameplay ||
-         f.category == FeatureSO.FeatureCategory.Graphic  ||
-         f.category == FeatureSO.FeatureCategory.Tech)
-        && f.cpuUsage >= 15f && f.prerequisites.Count == 0;
+    private void DeleteSelected()
+    {
+        if (_selectedNodeId == null) { ShowToast("Kein Node ausgewählt.", isError: true); return; }
+        _graph.RemoveNode(_selectedNodeId);
+        _selectedNodeId = null;
+    }
 
-    private static bool IsSupportFeature(FeatureSO f) =>
-        f.category == FeatureSO.FeatureCategory.Sound     ||
-        f.category == FeatureSO.FeatureCategory.Narrative ||
-        f.category == FeatureSO.FeatureCategory.UX;
+    private void DuplicateSelected()
+    {
+        if (_selectedNodeId == null) return;
+        var node = _graph.AllNodes.FirstOrDefault(n => n.NodeId == _selectedNodeId);
+        var feat = node?.GetFeatureData();
+        if (feat == null) return;
+        SpawnFeatureNode(feat, node.CanvasPosition + new Vector2(24, 24));
+    }
 
-    // ── Popup für Double-Click auf Node-Karte ─────────────────────
+    private void FinalizeGame()
+    {
+        var result = _graph.EvaluateGame(maxCpu);
+        if (!result.IsValid)
+        {
+            ShowToast("⚠ Graph ungültig: " + string.Join(", ", result.MissingRequiredSlots), isError: true);
+            return;
+        }
+        Debug.Log($"[NodeGraph] Finalisiert — {result.Summary}");
+        // TODO: hand result to GameManager
+    }
+
+    // ════════════════════════════════════════════════════════════════
+    //  POPUP OPENERS
+    // ════════════════════════════════════════════════════════════════
+
     internal void OpenFeaturePopupForNode(string nodeId)
     {
         var node = _graph.AllNodes.FirstOrDefault(n => n.NodeId == nodeId);
-        FeatureSO feat = null;
-        if (node is AnchorNode  an) feat = an.FeatureData;
-        if (node is UpgradeNode un) feat = un.FeatureData;
-        if (node is SupportNode sn) feat = sn.FeatureData;
+        var feat = node?.GetFeatureData();
         if (feat != null)
             _featurePopup.Show(feat, onAdd: null, maxCpu: maxCpu);
     }
 
-    // ── Popup für Klick auf Sidebar-Karte ─────────────────────────
     internal void OpenFeaturePopupForSidebar(FeatureSO feat, Vector2 canvasSpawnPos)
     {
         _featurePopup.Show(feat, onAdd: () => SpawnFeatureNode(feat, canvasSpawnPos), maxCpu: maxCpu);
+    }
+
+    // ════════════════════════════════════════════════════════════════
+    //  HELPERS
+    // ════════════════════════════════════════════════════════════════
+
+    private Vector2 CanvasLocal(Vector2 screenPos) =>
+        ((Vector2)_canvas.WorldToLocal(screenPos) - _panOffset) / _zoom;
+
+    private VisualElement FindPortDot(string portId)
+    {
+        foreach (var view in _nodeViews.Values)
+        {
+            var dot = FindPortDotInTree(view, portId);
+            if (dot != null) return dot;
+        }
+        return null;
+    }
+
+    private static VisualElement FindPortDotInTree(VisualElement el, string portId)
+    {
+        if (el.userData is NodePort p && p.PortId == portId) return el;
+        foreach (var child in el.Children())
+        {
+            var found = FindPortDotInTree(child, portId);
+            if (found != null) return found;
+        }
+        return null;
+    }
+
+    private void UpdateCanvasHint()
+    {
+        var hint = (_canvasContent ?? _canvas).Q<VisualElement>("CanvasHint");
+        hint?.EnableInClassList("hidden", _graph?.AllNodes.Any() == true);
+    }
+
+    private void UpdateStats()
+    {
+        if (_nodeCountLabel != null)
+            _nodeCountLabel.text = $"{_graph.AllNodes.Count()} Nodes";
+        if (_connCountLabel != null)
+            _connCountLabel.text = $"{_graph.AllConnections.Count()} Verbindungen";
+    }
+
+    private void MakeNodeDraggable(VisualElement card, GameNode node)
+    {
+        bool dragging    = false;
+        Vector2 dragStart = default;
+        Vector2 nodeStart = default;
+
+        card.RegisterCallback<PointerDownEvent>(evt =>
+        {
+            if (evt.button != 0 || evt.altKey) return;
+            dragging  = true;
+            dragStart = evt.position;
+            nodeStart = node.CanvasPosition;
+            card.CapturePointer(evt.pointerId);
+            evt.StopPropagation();
+        });
+
+        card.RegisterCallback<PointerMoveEvent>(evt =>
+        {
+            if (!dragging || !card.HasPointerCapture(evt.pointerId)) return;
+            var delta          = ((Vector2)evt.position - dragStart) / _zoom;
+            node.CanvasPosition = nodeStart + delta;
+            ApplyCanvasTransform(card, node.CanvasPosition);
+            _canvas.MarkDirtyRepaint();
+        });
+
+        card.RegisterCallback<PointerUpEvent>(evt =>
+        {
+            if (!dragging) return;
+            dragging = false;
+            card.ReleasePointer(evt.pointerId);
+        });
     }
 }
